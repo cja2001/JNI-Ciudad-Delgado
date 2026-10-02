@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inicio · Redes Cyan</title>
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap">
+<style>
+:root{--cyan:#00adef;--cyan-d:#0084b8;--ink:#071f2e;--muted:#4b6474;--bg:#f2f9fd;--card:#fff;--line:#d5e8f2;--lime:#c8f560}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 "Plus Jakarta Sans","Segoe UI",system-ui,sans-serif}
+main{max-width:1040px;margin:0 auto;padding:28px 16px 48px}
+h1{font:800 clamp(1.7rem,4.5vw,2.6rem)/1.05 "Bricolage Grotesque","Arial Black",system-ui,sans-serif;margin:0 0 6px;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--cyan-d)}
+.sub{color:var(--muted);margin:0 0 26px}
+.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:18px}
+.opt{position:relative;display:flex;flex-direction:column;gap:12px;padding:24px;border-radius:20px;background:var(--card);border:1px solid var(--line);
+  color:inherit;text-decoration:none;overflow:hidden;transition:transform .15s,box-shadow .15s}
+.opt:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,90,130,.14)}
+.opt:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+.opt::after{content:"";position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:var(--tint);opacity:.12}
+.ico{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:var(--tint);color:#fff}
+.ico svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.opt h2{font:800 1.45rem/1.1 "Bricolage Grotesque",system-ui,sans-serif;margin:0}
+.opt p{margin:0;color:var(--muted)}
+.stats{display:flex;gap:22px;flex-wrap:wrap;margin-top:auto;padding-top:8px;border-top:1px dashed var(--line)}
+.stat b{display:block;font:800 1.6rem/1 "Bricolage Grotesque",system-ui,sans-serif}
+.stat span{font-size:.78rem;color:var(--muted)}
+.go{font-weight:700;color:var(--tint)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.75rem;font-weight:700;padding:4px 9px;border-radius:999px;background:color-mix(in srgb,var(--c) 14%,#fff);color:var(--c)}
+.err{margin-top:18px;color:#a3261b;font-size:.9rem}
+</style>
+</head>
+<body>
+<main>
+  <h1>Hola, <em id="saludo">equipo</em></h1>
+  <p class="sub">¿Qué quieres hacer hoy en Ciudad Delgado?</p>
+  <div class="menu">
+    <a class="opt" href="index.html" style="--tint:#00adef">
+      <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><circle cx="5" cy="17" r="2.5"/><circle cx="19" cy="17" r="2.5"/><path d="M10.3 9.5 6.4 15M13.7 9.5l3.9 5.5M7.5 17h9"/></svg></div>
+      <h2>Redes</h2>
+      <p>Registra redes con su logo, lema, comunidades, responsable y hasta 20 integrantes. Ubícalas en el mapa y exporta a Excel.</p>
+      <div class="stats">
+        <div class="stat"><b id="nRedes">–</b><span>redes</span></div>
+        <div class="stat"><b id="nPersonas">–</b><span>personas</span></div>
+        <div class="stat"><b id="nZonas">–</b><span>zonas con redes</span></div>
+      </div>
+      <span class="go">Ver redes →</span>
+    </a>
+    <a class="opt" href="actividades.html" style="--tint:#0d9488">
+      <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><path d="M9.5 10l1.8 1.8L15 8"/></svg></div>
+      <h2>Actividades</h2>
+      <p>Mapea jornadas, fiestas, bacheos, cine comunitario y reparaciones. Sube fotos, actas y listas de asistencia del seguimiento.</p>
+      <div class="chips" id="chips"></div>
+      <div class="stats">
+        <div class="stat"><b id="nProg">–</b><span>programadas</span></div>
+        <div class="stat"><b id="nReal">–</b><span>realizadas</span></div>
+        <div class="stat"><b id="nDocs">–</b><span>documentos</span></div>
+      </div>
+      <span class="go">Ver actividades →</span>
+    </a>
+    <a class="opt" href="usuarios.html" id="optUsuarios" style="--tint:#7c3aed" hidden>
+      <div class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M18.5 8v6M15.5 11h6"/></svg></div>
+      <h2>Usuarios</h2>
+      <p>Crea las cuentas del equipo, asigna quién es administrador y desactiva el acceso de quien ya no participa.</p>
+      <div class="stats">
+        <div class="stat"><b id="nUsu">–</b><span>usuarios activos</span></div>
+        <div class="stat"><b id="nAdm">–</b><span>administradores</span></div>
+      </div>
+      <span class="go">Administrar usuarios →</span>
+    </a>
+  </div>
+  <p class="err" id="err" hidden></p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<script src="env.js"></script>
+<script src="config.js"></script>
+<script src="assets/datos.js"></script>
+<script src="assets/usuarios.js"></script>
+<script>
+(async () => {
+  const user = await RC.requireSession();
+  RC.header("inicio");
+  const n = (RC.perfil && RC.perfil.nombre ? RC.perfil.nombre.split(" ")[0] : "") || (RC.demo ? "" : String(user.email || "").split("@")[0]);
+  if (n) document.getElementById("saludo").textContent = n;
+  if (RC.esAdmin) {
+    document.getElementById("optUsuarios").hidden = false;
+    USUARIOS.init().lista().then(l => {
+      set("nUsu", l.filter(u => u.activo).length);
+      set("nAdm", l.filter(u => u.activo && u.rol === "admin").length);
+    }).catch(() => {});
+  }
+
+  const chips = document.getElementById("chips");
+  DATOS.TIPOS.forEach(t => {
+    const s = document.createElement("span");
+    s.className = "chip"; s.style.setProperty("--c", t.color); s.textContent = t.nombre;
+    chips.appendChild(s);
+  });
+
+  function set(id, v){ document.getElementById(id).textContent = Number(v || 0).toLocaleString("es-SV"); }
+  try {
+    DATOS.init();
+    const [redes, acts] = await Promise.all([DATOS.redes(), DATOS.actividades()]);
+    set("nRedes", redes.length);
+    set("nPersonas", redes.reduce((s, r) => s + (r.integrantes || 0) + 1, 0));
+    set("nZonas", new Set(redes.map(r => r.zona).filter(Boolean)).size);
+    set("nProg", acts.filter(a => a.estado === "programada").length);
+    set("nReal", acts.filter(a => a.estado === "realizada").length);
+    set("nDocs", acts.reduce((s, a) => s + (a.documentos || 0), 0));
+  } catch (e) {
+    const el = document.getElementById("err");
+    el.textContent = "No se pudieron cargar los totales: " + DATOS.errorText(e);
+    el.hidden = false;
+  }
+})();
+</script>
+</body>
+</html>

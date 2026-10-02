@@ -1,0 +1,11 @@
+# Credenciales
+.env
+.env.*
+!.env.example
+# Generado al compilar
+public/env.js
+# Sistema y herramientas
+node_modules/
+.vercel/
+.DS_Store
+supabase/.temp/

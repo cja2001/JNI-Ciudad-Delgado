@@ -1,0 +1,11 @@
+{
+  "name": "jni-ciudad-delgado",
+  "private": true,
+  "description": "Redes Cyan Ciudad Delgado: registro de redes, actividades y usuarios con Supabase",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/generar-env.mjs",
+    "dev": "node scripts/generar-env.mjs && npx --yes serve public -l 3000"
+  },
+  "engines": { "node": ">=18" }
+}

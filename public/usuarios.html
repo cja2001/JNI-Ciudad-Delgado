@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Usuarios · Redes Cyan</title>
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap">
+<style>
+:root{--cyan:#00adef;--cyan-d:#0084b8;--ink:#071f2e;--muted:#4b6474;--bg:#f2f9fd;--card:#fff;--line:#d5e8f2;--err:#b42318;--ok:#067647;--violet:#7c3aed}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 .95rem/1.45 "Plus Jakarta Sans","Segoe UI",system-ui,sans-serif}
+/* Nada se muestra hasta confirmar que es administrador. */
+body:not(.listo) main{visibility:hidden}
+button,input,select{font:inherit;color:inherit}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 48px}
+h1{font:800 clamp(1.5rem,4vw,2.2rem)/1.1 "Bricolage Grotesque",system-ui,sans-serif;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 20px}
+.grid{display:grid;grid-template-columns:minmax(300px,380px) 1fr;gap:18px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+.card h2{font:800 1.15rem "Bricolage Grotesque",system-ui,sans-serif;margin:0 0 12px}
+.f{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.f label{font-weight:700;font-size:.82rem}
+.f .msg{font-size:.76rem;color:var(--err)}
+.f.bad input,.f.bad select{border-color:var(--err)}
+input,select{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;min-width:0}
+.row{display:flex;gap:8px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:999px;padding:9px 16px;font-weight:700;cursor:pointer;background:var(--cyan);color:#fff;white-space:nowrap}
+.btn:hover{background:var(--cyan-d)}
+.btn.ghost{background:transparent;color:var(--cyan-d);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.ghost:hover{background:#eaf6fc}
+.btn.sm{padding:5px 11px;font-size:.8rem}
+.btn.danger{background:transparent;color:var(--err);box-shadow:inset 0 0 0 1.5px #f3c6c1}
+.btn:disabled{opacity:.5;cursor:default}
+.btn:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.roles label{position:relative;display:block;border:1.5px solid var(--line);border-radius:12px;padding:9px 10px;cursor:pointer;font-weight:700;font-size:.85rem}
+.roles label small{display:block;font-weight:500;color:var(--muted);font-size:.74rem;margin-top:2px}
+.roles input{position:absolute;opacity:0;width:1px;height:1px}
+.roles label:has(input:checked){border-color:var(--cyan);background:#eaf6fc}
+.roles label:has(input:focus-visible){outline:3px solid var(--cyan);outline-offset:2px}
+.hint{font-size:.78rem;color:var(--muted);margin:0}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.toolbar input{flex:1 1 200px}
+.toolbar select{flex:0 1 180px}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+td .n{font-weight:700}
+td .c{font-size:.78rem;color:var(--muted);word-break:break-all}
+.badge{display:inline-block;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px}
+.b-admin{background:#ede9fe;color:#5b21b6}.b-usuario{background:#e0f2fe;color:#075985}
+.b-on{background:#dcfce7;color:#166534}.b-off{background:#f1f5f9;color:#64748b}
+.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+tr.off td .n{color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:24px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;z-index:3000;font-weight:600;max-width:calc(100% - 32px)}
+.toast.bad{background:var(--err)}
+.clave{display:flex;gap:6px}
+dialog{border:0;border-radius:18px;padding:20px;max-width:min(420px,calc(100% - 32px));width:100%;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(7,31,46,.45)}
+dialog h2{font:800 1.15rem "Bricolage Grotesque",system-ui,sans-serif;margin:0 0 6px}
+.nota{background:#fff7db;border:1px solid #e0b400;color:#6b4e00;border-radius:12px;padding:10px 12px;font-size:.82rem;margin-bottom:14px}
+@media (max-width:860px){
+  .grid{grid-template-columns:1fr}
+  thead{display:none}
+  table,tbody,tr,td{display:block}
+  tr{border:1px solid var(--line);border-radius:14px;padding:6px 4px;margin-bottom:10px;background:#fff}
+  td{border:0;padding:4px 10px}
+  td[data-l]::before{content:attr(data-l) ": ";font-size:.74rem;color:var(--muted)}
+  .acts{justify-content:flex-start}
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Usuarios</h1>
+  <p class="sub">Solo los administradores ven esta sección. Aquí se crean las cuentas que pueden entrar al sistema.</p>
+  <div class="nota" id="notaDemo" hidden>En modo demostración las cuentas se guardan solo en este navegador y no pueden iniciar sesión. Al conectar Supabase se crean de verdad.</div>
+  <div class="grid">
+    <form class="card" id="fNuevo" novalidate>
+      <h2>Nuevo usuario</h2>
+      <div class="f" id="f-nombre"><label for="nombre">Nombre completo</label><input id="nombre" autocomplete="off" maxlength="120" placeholder="Ej. María López"><span class="msg"></span></div>
+      <div class="f" id="f-correo"><label for="correo">Correo</label><input id="correo" type="email" autocomplete="off" inputmode="email" maxlength="254" placeholder="nombre@correo.com"><span class="msg"></span></div>
+      <div class="f" id="f-clave"><label for="clave">Contraseña temporal</label>
+        <div class="clave"><input id="clave" type="text" autocomplete="new-password" maxlength="72" class="mono"><button class="btn ghost sm" type="button" id="btnGenerar">Generar</button></div>
+        <span class="msg"></span><p class="hint">Mínimo 8 caracteres. Compártala con la persona; podrá cambiarla con “¿Olvidaste tu contraseña?”.</p></div>
+      <div class="f"><label>Rol</label>
+        <div class="roles">
+          <label><input type="radio" name="rol" value="usuario" checked>Usuario<small>Registra redes y actividades</small></label>
+          <label><input type="radio" name="rol" value="admin">Administrador<small>Además crea y administra usuarios</small></label>
+        </div></div>
+      <button class="btn" type="submit" id="btnCrear" style="width:100%">Crear usuario</button>
+    </form>
+
+    <section class="card" aria-label="Lista de usuarios">
+      <div class="toolbar">
+        <input id="q" type="search" placeholder="Buscar por nombre o correo" aria-label="Buscar">
+        <select id="fRol" aria-label="Filtrar"><option value="">Todos</option><option value="admin">Administradores</option><option value="usuario">Usuarios</option><option value="off">Desactivados</option></select>
+      </div>
+      <table>
+        <thead><tr><th>Nombre</th><th>Rol</th><th>Estado</th><th><span class="vh">Acciones</span></th></tr></thead>
+        <tbody id="tb"></tbody>
+      </table>
+    </section>
+  </div>
+</main>
+
+<dialog id="dClave">
+  <form method="dialog" id="fClave" novalidate>
+    <h2>Nueva contraseña</h2>
+    <p class="hint" id="dClaveQuien" style="margin-bottom:12px"></p>
+    <div class="f" id="f-clave2"><label for="clave2">Contraseña temporal</label>
+      <div class="clave"><input id="clave2" type="text" autocomplete="new-password" maxlength="72"><button class="btn ghost sm" type="button" id="btnGenerar2">Generar</button></div><span class="msg"></span></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button><button class="btn" id="btnClave" value="ok">Guardar</button></div>
+  </form>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<script src="env.js"></script>
+<script src="config.js"></script>
+<script src="assets/usuarios.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let usuarios = [], yo = null;
+
+function toast(t, bad){
+  document.querySelectorAll(".toast").forEach(x => x.remove());
+  const d = document.createElement("div");
+  d.className = "toast" + (bad ? " bad" : ""); d.textContent = t; d.setAttribute("role", bad ? "alert" : "status");
+  document.body.appendChild(d); setTimeout(() => d.remove(), bad ? 5000 : 2600);
+}
+function setMsg(id, t){ const f = $("f-" + id); f.classList.toggle("bad", !!t); f.querySelector(".msg").textContent = t || ""; }
+function generar(){
+  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+  const r = crypto.getRandomValues(new Uint32Array(10));
+  return [...r].map(n => abc[n % abc.length]).join("");
+}
+$("btnGenerar").onclick = () => { $("clave").value = generar(); setMsg("clave", ""); };
+$("btnGenerar2").onclick = () => { $("clave2").value = generar(); setMsg("clave2", ""); };
+
+function render(){
+  const q = $("q").value.trim().toLowerCase(), f = $("fRol").value;
+  const l = usuarios.filter(u =>
+    (!q || (u.nombre + " " + u.correo).toLowerCase().includes(q)) &&
+    (!f || (f === "off" ? !u.activo : u.activo && u.rol === f)));
+  const admins = usuarios.filter(u => u.rol === "admin" && u.activo).length;
+  $("tb").innerHTML = l.length ? l.map(u => {
+    const soyYo = yo && u.id === yo;
+    const ultimoAdmin = u.rol === "admin" && u.activo && admins <= 1;
+    const bloqueo = soyYo || ultimoAdmin;
+    const motivo = soyYo ? "No puede cambiar su propia cuenta" : "Debe quedar al menos un administrador activo";
+    return `<tr data-id="${esc(u.id)}" class="${u.activo ? "" : "off"}">
+      <td><div class="n">${esc(u.nombre || "(sin nombre)")}${soyYo ? " (usted)" : ""}</div><div class="c">${esc(u.correo)}</div></td>
+      <td data-l="Rol"><span class="badge b-${u.rol}">${u.rol === "admin" ? "Administrador" : "Usuario"}</span></td>
+      <td data-l="Estado"><span class="badge ${u.activo ? "b-on" : "b-off"}">${u.activo ? "Activo" : "Desactivado"}</span></td>
+      <td><div class="acts">
+        <button type="button" class="btn ghost sm" data-act="rol" ${u.rol === "admin" && bloqueo ? `disabled title="${motivo}"` : ""}>${u.rol === "admin" ? "Quitar admin" : "Hacer admin"}</button>
+        <button type="button" class="btn ghost sm" data-act="clave">Contraseña</button>
+        <button type="button" class="btn ${u.activo ? "danger" : "ghost"} sm" data-act="activo" ${u.activo && bloqueo ? `disabled title="${motivo}"` : ""}>${u.activo ? "Desactivar" : "Activar"}</button>
+      </div></td></tr>`;
+  }).join("") : `<tr><td colspan="4" class="empty">${usuarios.length ? "Nadie coincide con la búsqueda." : "Aún no hay usuarios."}</td></tr>`;
+}
+["q","fRol"].forEach(id => $(id).addEventListener("input", render));
+
+async function cargar(){
+  try { usuarios = await USUARIOS.lista(); }
+  catch (e) { toast("No se pudo cargar la lista: " + (e.message || e), true); }
+  render();
+}
+
+$("tb").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-act]"); if (!b) return;
+  const u = usuarios.find(x => x.id === b.closest("tr").dataset.id); if (!u) return;
+  if (b.dataset.act === "clave") {
+    $("dClaveQuien").textContent = `${u.nombre} · ${u.correo}`; $("clave2").value = ""; setMsg("clave2", "");
+    $("dClave").dataset.id = u.id; $("dClave").showModal(); return;
+  }
+  let cambios, texto;
+  if (b.dataset.act === "rol") {
+    cambios = { rol: u.rol === "admin" ? "usuario" : "admin" };
+    texto = cambios.rol === "admin" ? `¿Hacer administrador a ${u.nombre}? Podrá crear y administrar usuarios.` : `¿Quitar el rol de administrador a ${u.nombre}?`;
+  } else {
+    cambios = { activo: !u.activo };
+    texto = u.activo ? `¿Desactivar a ${u.nombre}? Ya no podrá entrar al sistema. Sus registros se conservan.` : `¿Activar de nuevo a ${u.nombre}?`;
+  }
+  if (!confirm(texto)) return;
+  b.disabled = true;
+  try { await USUARIOS.actualizar(u.id, cambios); toast("Cambios guardados"); await cargar(); }
+  catch (err) { toast(err.message || String(err), true); b.disabled = false; }
+});
+
+$("fClave").addEventListener("submit", async e => {
+  if (e.submitter && e.submitter.value === "cancel") return;
+  e.preventDefault();
+  const clave = $("clave2").value;
+  if (clave.length < 8) { setMsg("clave2", "Use al menos 8 caracteres."); return; }
+  $("btnClave").disabled = true;
+  try { await USUARIOS.clave($("dClave").dataset.id, clave); $("dClave").close(); toast("Contraseña cambiada. Compártala con la persona."); }
+  catch (err) { setMsg("clave2", err.message || String(err)); }
+  finally { $("btnClave").disabled = false; }
+});
+
+$("fNuevo").addEventListener("submit", async e => {
+  e.preventDefault();
+  const nombre = $("nombre").value.replace(/\s+/g, " ").trim();
+  const correo = $("correo").value.trim().toLowerCase();
+  const clave = $("clave").value;
+  const rol = document.querySelector("input[name=rol]:checked").value;
+  let ok = true;
+  const chk = (k, cond, t) => { setMsg(k, cond ? "" : t); if (!cond && ok) { ok = false; $(k).focus(); } };
+  chk("nombre", nombre.length >= 3, "Escriba el nombre completo.");
+  chk("correo", /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo), "Escriba un correo válido.");
+  chk("clave", clave.length >= 8, "Use al menos 8 caracteres.");
+  if (!ok) return;
+  if (rol === "admin" && !confirm(`${nombre} será administrador y podrá crear y administrar usuarios. ¿Continuar?`)) return;
+  const btn = $("btnCrear"); btn.disabled = true; btn.textContent = "Creando…";
+  try {
+    await USUARIOS.crear({ nombre, correo, clave, rol });
+    toast(`Cuenta creada para ${nombre}. Compártale su correo y contraseña temporal.`);
+    $("fNuevo").reset();
+    $("clave").value = generar();
+    await cargar();
+  } catch (err) {
+    const m = err.message || String(err);
+    if (/correo/i.test(m)) setMsg("correo", m); else toast(m, true);
+  } finally { btn.disabled = false; btn.textContent = "Crear usuario"; }
+});
+
+(async () => {
+  const user = await RC.requireAdmin();   // un usuario normal es enviado al inicio
+  yo = user.id || null;
+  RC.header("usuarios");
+  $("notaDemo").hidden = !RC.demo;
+  document.body.classList.add("listo");
+  USUARIOS.init();
+  $("clave").value = generar();
+  await cargar();
+})();
+</script>
+</body>
+</html>

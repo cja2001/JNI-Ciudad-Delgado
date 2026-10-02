@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Actividades · Redes Cyan</title>
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/leaflet.css">
+<style>
+:root{--cyan:#00adef;--cyan-d:#0084b8;--ink:#071f2e;--muted:#4b6474;--bg:#f2f9fd;--card:#fff;--line:#d5e8f2;--err:#b42318;--ok:#067647}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 .95rem/1.45 "Plus Jakarta Sans","Segoe UI",system-ui,sans-serif;display:flex;flex-direction:column}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{flex:1;min-height:0;display:grid;grid-template-columns:minmax(340px,430px) 1fr}
+.panel{min-height:0;overflow:auto;background:var(--card);border-right:1px solid var(--line);display:flex;flex-direction:column}
+#map{min-height:300px;background:#cfe3ec}
+.ph{position:sticky;top:0;z-index:5;background:var(--card);padding:16px 16px 12px;border-bottom:1px solid var(--line)}
+.ph h1{font:800 1.4rem/1.1 "Bricolage Grotesque",system-ui,sans-serif;margin:0}
+.row{display:flex;gap:8px;align-items:center}
+.row.sp{justify-content:space-between}
+.pb{padding:14px 16px 24px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:999px;padding:9px 16px;font-weight:700;cursor:pointer;background:var(--cyan);color:#fff;text-decoration:none}
+.btn:hover{background:var(--cyan-d)}
+.btn.ghost{background:transparent;color:var(--cyan-d);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.ghost:hover{background:#eaf6fc}
+.btn.danger{background:transparent;color:var(--err);box-shadow:inset 0 0 0 1.5px #f3c6c1}
+.btn.sm{padding:6px 12px;font-size:.82rem}
+.btn:disabled{opacity:.55;cursor:default}
+.btn:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.filters input{grid-column:1/-1}
+input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff}
+textarea{min-height:76px;resize:vertical}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.kpi{background:var(--bg);border-radius:12px;padding:8px 10px}
+.kpi b{display:block;font:800 1.25rem/1 "Bricolage Grotesque",system-ui,sans-serif}
+.kpi span{font-size:.72rem;color:var(--muted)}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;text-align:left;width:100%;padding:10px;border-radius:14px;border:1px solid var(--line);background:#fff;cursor:pointer}
+.item:hover{border-color:var(--cyan)}
+.item .t{font-weight:700;line-height:1.25}
+.item .m{font-size:.78rem;color:var(--muted)}
+.badge{font-size:.7rem;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.e-programada{background:#e0f2fe;color:#075985}.e-realizada{background:#dcfce7;color:#166534}.e-cancelada{background:#f1f5f9;color:#64748b}
+.tico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:#fff;background:var(--c)}
+.tico svg,.pin svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.empty{text-align:center;color:var(--muted);padding:28px 10px}
+.empty b{display:block;color:var(--ink);font-size:1rem;margin-bottom:4px}
+.f{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.f label{font-weight:700;font-size:.82rem}
+.f .msg{font-size:.76rem;color:var(--err);min-height:0}
+.f.bad input,.f.bad select{border-color:var(--err)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.tipos{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.tipos label{display:flex;gap:8px;align-items:center;padding:8px;border:1.5px solid var(--line);border-radius:12px;cursor:pointer;font-weight:600;font-size:.8rem;line-height:1.2}
+.tipos label{position:relative}
+.tipos input{position:absolute;inset:0;width:1px;height:1px;opacity:0;pointer-events:none}
+.g2>*,.filters>*{min-width:0}
+.tipos .tico{width:30px;height:30px;border-radius:9px;flex:none}
+.tipos .tico svg{width:18px;height:18px}
+.tipos label:has(input:checked){border-color:var(--c);background:color-mix(in srgb,var(--c) 10%,#fff)}
+.tipos label:has(input:focus-visible){outline:3px solid var(--cyan);outline-offset:2px}
+.detect{font-size:.82rem;background:var(--bg);border-radius:10px;padding:8px 10px;margin-bottom:12px}
+.detect.out{background:#fff4e5;color:#8a4b00}
+.hint{font-size:.78rem;color:var(--muted);margin:4px 0 8px}
+.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:12px 0;font-size:.88rem}
+.dl dt{color:var(--muted)}
+.dl dd{margin:0;font-weight:600}
+.sec{font:800 1.05rem "Bricolage Grotesque",system-ui,sans-serif;margin:20px 0 8px}
+.docs{display:flex;flex-direction:column;gap:6px}
+.doc{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:12px}
+.doc .th{width:44px;height:44px;border-radius:8px;background:var(--bg);display:grid;place-items:center;font-size:.65rem;font-weight:800;color:var(--muted);overflow:hidden}
+.doc .th img{width:100%;height:100%;object-fit:cover}
+.doc .n{font-weight:600;font-size:.85rem;word-break:break-word}
+.doc .m{font-size:.74rem;color:var(--muted)}
+.drop{border:2px dashed var(--line);border-radius:14px;padding:14px;text-align:center;background:var(--bg)}
+.drop.over{border-color:var(--cyan);background:#e3f5fd}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;z-index:3000;font-weight:600;max-width:calc(100% - 32px)}
+.toast.bad{background:var(--err)}
+.pin{width:34px;height:34px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);background:var(--c);border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);display:grid;place-items:center;color:#fff}
+.pin svg{transform:rotate(45deg);width:18px;height:18px}
+.pin.off{opacity:.55}
+.leaflet-container{font:inherit}
+.legend{background:#fff;padding:8px 10px;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,.25);font-size:.75rem;line-height:1.7}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.clabel{color:#fde047;font-weight:700;font-size:.7rem;text-shadow:0 0 3px #000,0 0 3px #000;white-space:nowrap}
+.zlabel{color:#fff;font:800 .8rem "Bricolage Grotesque",system-ui,sans-serif;text-shadow:0 0 4px #000,0 0 4px #000;text-align:center}
+@media (max-width:820px){
+  body{display:block}
+  .app{display:flex;flex-direction:column}
+  #map{height:46vh;order:-1}
+  .panel{border-right:0;overflow:visible}
+  .ph{position:static}
+  .legend{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="panel" aria-label="Actividades">
+    <!-- LISTA -->
+    <div id="vLista">
+      <div class="ph">
+        <div class="row sp"><h1>Actividades</h1><button class="btn" id="btnNueva" type="button">+ Nueva actividad</button></div>
+        <div class="filters">
+          <input id="fBuscar" type="search" placeholder="Buscar por título, lugar o red" aria-label="Buscar">
+          <select id="fTipo" aria-label="Tipo"><option value="">Todos los tipos</option></select>
+          <select id="fEstado" aria-label="Estado"><option value="">Todos los estados</option></select>
+          <select id="fZona" aria-label="Zona"><option value="">Todas las zonas</option></select>
+          <select id="fMes" aria-label="Mes"><option value="">Todas las fechas</option></select>
+        </div>
+      </div>
+      <div class="pb">
+        <div class="kpis">
+          <div class="kpi"><b id="kProg">0</b><span>programadas</span></div>
+          <div class="kpi"><b id="kReal">0</b><span>realizadas</span></div>
+          <div class="kpi"><b id="kBenef">0</b><span>beneficiarios</span></div>
+        </div>
+        <div class="list" id="lista"></div>
+      </div>
+    </div>
+
+    <!-- FORMULARIO -->
+    <form id="vForm" hidden novalidate>
+      <div class="ph row sp"><h1 id="formTitulo">Nueva actividad</h1><button class="btn ghost sm" type="button" id="btnCancelar">Cancelar</button></div>
+      <div class="pb">
+        <input type="hidden" id="aId">
+        <div class="f" id="f-tipo"><label>Tipo de actividad</label><div class="tipos" id="tipos" role="radiogroup" aria-label="Tipo de actividad"></div><span class="msg"></span></div>
+        <div class="f" id="f-titulo"><label for="titulo">Título</label><input id="titulo" maxlength="120" placeholder="Ej. Limpieza del parque de la colonia"><span class="msg"></span></div>
+        <div class="g2">
+          <div class="f" id="f-fecha"><label for="fecha">Fecha</label><input id="fecha" type="date"><span class="msg"></span></div>
+          <div class="f"><label for="hora">Hora</label><input id="hora" type="time"></div>
+        </div>
+        <div class="g2">
+          <div class="f"><label for="estado">Estado</label><select id="estado"></select></div>
+          <div class="f"><label for="red">Red que la organiza</label><select id="red"><option value="">Sin red asignada</option></select></div>
+        </div>
+        <div class="f"><label for="lugar">Lugar o referencia</label><input id="lugar" maxlength="200" placeholder="Ej. Pasaje 3, frente a la cancha"></div>
+        <div class="f" id="f-ubic"><label>Ubicación en el mapa</label>
+          <p class="hint" id="geoHint">Toque el mapa, use su ubicación o pegue coordenadas o un enlace de Google Maps.</p>
+          <div class="row" style="margin-bottom:8px"><button class="btn ghost sm" type="button" id="btnGeo">Usar mi ubicación</button></div>
+          <div class="g2">
+            <input id="lat" class="mono" inputmode="decimal" placeholder="Latitud" aria-label="Latitud">
+            <input id="lng" class="mono" inputmode="decimal" placeholder="Longitud" aria-label="Longitud">
+          </div>
+          <input id="pega" class="mono" style="margin-top:8px" autocomplete="off" placeholder="Pegar: 13.7245, -89.1702 o enlace" aria-label="Pegar coordenadas o enlace">
+          <span class="msg"></span>
+        </div>
+        <div class="detect" id="detect">Marque el punto y el sistema le dirá en qué zona y cantón queda.</div>
+        <div class="f"><label for="descripcion">Descripción</label><textarea id="descripcion" maxlength="2000" placeholder="Qué se hizo o qué se hará, materiales, aliados…"></textarea></div>
+        <div class="g2">
+          <div class="f" id="f-participantes"><label for="participantes">Participantes</label><input id="participantes" type="number" min="0" inputmode="numeric" placeholder="Voluntarios"><span class="msg"></span></div>
+          <div class="f" id="f-beneficiarios"><label for="beneficiarios">Beneficiarios</label><input id="beneficiarios" type="number" min="0" inputmode="numeric" placeholder="Personas"><span class="msg"></span></div>
+        </div>
+        <div class="row"><button class="btn" type="submit" id="btnGuardar">Guardar actividad</button></div>
+      </div>
+    </form>
+
+    <!-- DETALLE -->
+    <div id="vDetalle" hidden>
+      <div class="ph row sp"><button class="btn ghost sm" type="button" id="btnVolver">← Volver</button>
+        <div class="row"><button class="btn ghost sm" type="button" id="btnEditar">Editar</button><button class="btn danger sm" type="button" id="btnBorrar">Borrar</button></div></div>
+      <div class="pb">
+        <div class="row" style="gap:12px;align-items:flex-start"><div class="tico" id="dIco"></div><div><h1 id="dTitulo" style="font:800 1.3rem/1.15 'Bricolage Grotesque',system-ui,sans-serif;margin:0"></h1><div id="dTipo" class="hint" style="margin:2px 0 0"></div></div></div>
+        <dl class="dl" id="dDatos"></dl>
+        <p id="dDesc" style="white-space:pre-wrap;margin:0"></p>
+
+        <h2 class="sec">Documentos de seguimiento</h2>
+        <form id="fDoc" class="drop" novalidate>
+          <p style="margin:0 0 8px;font-weight:600">Suba fotos, actas, listas de asistencia o informes</p>
+          <p class="hint" style="margin-top:0">Fotos, PDF, Word o Excel, hasta <span id="maxMb"></span> MB cada uno. Puede elegir varios.</p>
+          <div class="g2" style="text-align:left">
+            <div class="f"><label for="docCat">Tipo de documento</label><select id="docCat"></select></div>
+            <div class="f"><label for="docDesc">Descripción (opcional)</label><input id="docDesc" maxlength="200" placeholder="Ej. Antes y después"></div>
+          </div>
+          <input type="file" id="docFile" multiple accept="image/png,image/jpeg,image/webp,image/heic,application/pdf,.doc,.docx,.xls,.xlsx" hidden>
+          <div class="row" style="justify-content:center"><button class="btn" type="button" id="btnElegir">Elegir archivos</button></div>
+          <p class="hint" id="docEstado" style="margin:8px 0 0" aria-live="polite"></p>
+        </form>
+        <div class="docs" id="docs" style="margin-top:10px"></div>
+      </div>
+    </div>
+  </section>
+  <div id="map" role="application" aria-label="Mapa de actividades"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<script src="env.js"></script>
+<script src="config.js"></script>
+<script src="assets/mapa-base.js"></script>
+<script src="assets/datos.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const svg = t => `<svg viewBox="0 0 24 24" aria-hidden="true">${t.icon}</svg>`;
+const fmtFecha = f => f ? new Date(f + "T12:00:00").toLocaleDateString("es-SV", {weekday:"short", day:"numeric", month:"short", year:"numeric"}) : "";
+const fmtHora = h => h ? String(h).slice(0, 5) : "";
+const fmtBytes = b => b == null ? "" : b < 1048576 ? Math.max(1, Math.round(b / 1024)) + " KB" : (b / 1048576).toFixed(1) + " MB";
+const num = v => Number(v || 0).toLocaleString("es-SV");
+let acts = [], redes = [], actual = null;
+
+function toast(t, bad){
+  const d = document.createElement("div");
+  d.className = "toast" + (bad ? " bad" : ""); d.textContent = t; d.setAttribute("role", bad ? "alert" : "status");
+  document.body.appendChild(d); setTimeout(() => d.remove(), bad ? 5000 : 2600);
+}
+function vista(v){
+  ["vLista","vForm","vDetalle"].forEach(id => $(id).hidden = id !== v);
+  document.querySelector(".panel").scrollTop = 0;
+  if (draft && v !== "vForm") { map.removeLayer(draft); draft = null; }
+}
+
+/* ---------- Catálogos en los controles ---------- */
+function llenarCatalogos(){
+  const opt = (v, t) => `<option value="${esc(v)}">${esc(t)}</option>`;
+  $("fTipo").insertAdjacentHTML("beforeend", DATOS.TIPOS.map(t => opt(t.id, t.nombre)).join(""));
+  $("fEstado").insertAdjacentHTML("beforeend", DATOS.ESTADOS.map(e => opt(e.id, e.nombre)).join(""));
+  $("fZona").insertAdjacentHTML("beforeend", MAPA.ZONAS.features.map(f => f.properties.zona).sort((a, b) => a - b).map(z => opt(z, "Zona " + z)).join(""));
+  $("estado").innerHTML = DATOS.ESTADOS.map(e => opt(e.id, e.nombre)).join("");
+  $("docCat").innerHTML = DATOS.CATEGORIAS.map(c => opt(c.id, c.nombre)).join("");
+  $("maxMb").textContent = DATOS.MAX_MB;
+  $("tipos").innerHTML = DATOS.TIPOS.map(t =>
+    `<label style="--c:${t.color}"><input type="radio" name="tipo" value="${t.id}"><span class="tico" style="--c:${t.color}">${svg(t)}</span>${esc(t.nombre)}</label>`).join("");
+}
+function llenarRedes(){
+  $("red").innerHTML = `<option value="">Sin red asignada</option>` +
+    redes.map(r => `<option value="${esc(r.id)}">${esc(r.nombre)}${r.zona ? " · Zona " + r.zona : ""}</option>`).join("");
+}
+function llenarMeses(){
+  const sel = $("fMes"), cur = sel.value;
+  const meses = [...new Set(acts.map(a => String(a.fecha).slice(0, 7)))].sort().reverse();
+  sel.innerHTML = `<option value="">Todas las fechas</option>` + meses.map(m =>
+    `<option value="${m}">${new Date(m + "-15T12:00:00").toLocaleDateString("es-SV", {month:"long", year:"numeric"})}</option>`).join("");
+  sel.value = meses.includes(cur) ? cur : "";
+}
+
+/* ---------- Lista ---------- */
+function filtradas(){
+  const q = $("fBuscar").value.trim().toLowerCase(), t = $("fTipo").value, e = $("fEstado").value, z = $("fZona").value, m = $("fMes").value;
+  return acts.filter(a =>
+    (!t || a.tipo_id === +t) && (!e || a.estado === e) && (!z || a.zona === +z) && (!m || String(a.fecha).startsWith(m)) &&
+    (!q || [a.titulo, a.lugar, a.red, a.canton, a.descripcion].some(x => String(x || "").toLowerCase().includes(q))));
+}
+function render(){
+  const l = filtradas();
+  $("kProg").textContent = num(l.filter(a => a.estado === "programada").length);
+  $("kReal").textContent = num(l.filter(a => a.estado === "realizada").length);
+  $("kBenef").textContent = num(l.filter(a => a.estado === "realizada").reduce((s, a) => s + (a.beneficiarios || 0), 0));
+  const box = $("lista");
+  if (!acts.length) box.innerHTML = `<div class="empty"><b>Todavía no hay actividades</b>Toque “Nueva actividad” y marque en el mapa dónde será.</div>`;
+  else if (!l.length) box.innerHTML = `<div class="empty"><b>Ninguna actividad con esos filtros</b>Pruebe quitando alguno.</div>`;
+  else box.innerHTML = l.map(a => {
+    const t = DATOS.tipoPorId(a.tipo_id) || DATOS.TIPOS[0];
+    return `<button type="button" class="item" data-id="${esc(a.id)}">
+      <span class="tico" style="--c:${t.color}">${svg(t)}</span>
+      <span><span class="t">${esc(a.titulo)}</span><br><span class="m">${esc(fmtFecha(a.fecha))}${a.zona ? " · Zona " + a.zona : ""}${a.documentos ? " · " + a.documentos + " doc." : ""}</span></span>
+      <span class="badge e-${esc(a.estado)}">${esc((DATOS.ESTADOS.find(x => x.id === a.estado) || {}).nombre || a.estado)}</span></button>`;
+  }).join("");
+  pintarMapa(l);
+}
+$("lista").addEventListener("click", e => { const b = e.target.closest(".item"); if (b) abrir(b.dataset.id, true); });
+["fBuscar","fTipo","fEstado","fZona","fMes"].forEach(id => $(id).addEventListener("input", render));
+
+async function cargar(){
+  try {
+    [acts, redes] = await Promise.all([DATOS.actividades(), DATOS.redes()]);
+  } catch (e) { toast("No se pudieron cargar las actividades: " + DATOS.errorText(e), true); acts = acts || []; }
+  llenarRedes(); llenarMeses(); render();
+}
+
+/* ---------- Mapa ---------- */
+let map = null, capa = null, draft = null;
+const pines = new Map();
+function initMapa(){
+  if (!window.L) { $("map").innerHTML = '<div class="empty"><b>El mapa no pudo cargarse</b>Revise la conexión a internet y recargue la página.</div>'; return; }
+  map = L.map("map", {zoomSnap:0.25, minZoom:12, maxZoom:19, maxBounds:L.latLngBounds(MAPA.IMG_BOUNDS).pad(0.4)});
+  map.fitBounds(MAPA.DIST_BOUNDS, {padding:[10,10]});
+  L.control.scale({imperial:false}).addTo(map);
+  const sat = L.imageOverlay("assets/satelite.jpg", MAPA.IMG_BOUNDS, {interactive:false}).addTo(map);
+  const calles = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {maxZoom:19, attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'});
+  map.attributionControl.addAttribution("Imagen y zonas: mapa oficial del distrito");
+  const zonas = L.geoJSON(MAPA.ZONAS, {interactive:false, style:{color:"#22d3ee", weight:2.2, fillOpacity:.04}});
+  const zl = MAPA.ZONAS.features.map(f => L.marker(f.properties.lab, {interactive:false, keyboard:false,
+    icon:L.divIcon({className:"zlabel", html:"Zona " + f.properties.zona, iconSize:[70,18], iconAnchor:[35,9]})}));
+  const cant = L.geoJSON(MAPA.CANTONES, {style:{color:"#fde047", weight:1.4, dashArray:"6 5", fillOpacity:0},
+    onEachFeature:(f, l) => l.bindTooltip(esc(f.properties.nombre), {sticky:true})});
+  const zG = L.layerGroup([zonas, ...zl]).addTo(map), cG = L.layerGroup([cant]).addTo(map);
+  capa = L.layerGroup().addTo(map);
+  L.control.layers({"Imagen satelital": sat, "Calles (OpenStreetMap)": calles},
+    {"Zonas": zG, "Cantones y barrios": cG, "Actividades": capa}, {collapsed:true}).addTo(map);
+  const leg = L.control({position:"bottomright"});
+  leg.onAdd = () => { const d = L.DomUtil.create("div", "legend");
+    d.innerHTML = DATOS.TIPOS.map(t => `<div><i style="background:${t.color}"></i>${esc(t.nombre)}</div>`).join(""); return d; };
+  leg.addTo(map);
+  map.on("click", e => { if (!$("vForm").hidden) ponerPunto(e.latlng.lat, e.latlng.lng, true); });
+}
+function pintarMapa(l){
+  if (!map) return;
+  capa.clearLayers(); pines.clear();
+  for (const a of l) {
+    const t = DATOS.tipoPorId(a.tipo_id) || DATOS.TIPOS[0];
+    const m = L.marker([a.latitud, a.longitud], {title:a.titulo, icon:L.divIcon({className:"", iconSize:[34,34], iconAnchor:[4,34],
+      html:`<div class="pin${a.estado === "cancelada" ? " off" : ""}" style="--c:${t.color}">${svg(t)}</div>`})});
+    m.bindTooltip(`<b>${esc(a.titulo)}</b><br>${esc(t.nombre)} · ${esc(fmtFecha(a.fecha))}`, {direction:"top", offset:[13,-30]});
+    m.on("click", () => abrir(a.id, false));
+    m.addTo(capa); pines.set(a.id, m);
+  }
+}
+
+/* ---------- Detalle ---------- */
+async function abrir(id, centrar){
+  const a = acts.find(x => x.id === id); if (!a) return;
+  actual = a;
+  const t = DATOS.tipoPorId(a.tipo_id) || DATOS.TIPOS[0];
+  $("dIco").style.setProperty("--c", t.color); $("dIco").innerHTML = svg(t);
+  $("dTitulo").textContent = a.titulo;
+  $("dTipo").textContent = t.nombre;
+  const fila = (k, v) => v || v === 0 ? `<dt>${k}</dt><dd>${esc(v)}</dd>` : "";
+  $("dDatos").innerHTML =
+    fila("Estado", (DATOS.ESTADOS.find(x => x.id === a.estado) || {}).nombre) +
+    fila("Fecha", fmtFecha(a.fecha) + (a.hora ? " · " + fmtHora(a.hora) : "")) +
+    fila("Red", a.red) + fila("Lugar", a.lugar) +
+    fila("Zona", a.zona ? "Zona " + a.zona : "Fuera de las zonas") + fila("Cantón o barrio", a.canton) +
+    fila("Participantes", a.participantes) + fila("Beneficiarios", a.beneficiarios) +
+    `<dt>Coordenadas</dt><dd class="mono">${(+a.latitud).toFixed(6)}, ${(+a.longitud).toFixed(6)}</dd>`;
+  $("dDesc").textContent = a.descripcion || "";
+  $("docEstado").textContent = "";
+  vista("vDetalle");
+  if (map && centrar) map.setView([a.latitud, a.longitud], Math.max(map.getZoom(), 16));
+  await pintarDocs();
+}
+async function pintarDocs(){
+  const box = $("docs"), a = actual;
+  box.innerHTML = `<p class="hint">Cargando documentos…</p>`;
+  let docs;
+  try { docs = await DATOS.documentos(a.id); }
+  catch (e) { box.innerHTML = `<p class="hint">${esc(DATOS.errorText(e))}</p>`; return; }
+  if (actual !== a) return;
+  a.documentos = docs.length;
+  if (!docs.length) { box.innerHTML = `<p class="hint">Aún no hay documentos para esta actividad.</p>`; return; }
+  const cat = c => (DATOS.CATEGORIAS.find(x => x.id === c) || {}).nombre || c;
+  box.innerHTML = docs.map((d, i) => {
+    const ext = (String(d.nombre_archivo).split(".").pop() || "").slice(0, 4).toUpperCase();
+    return `<div class="doc" data-i="${i}"><div class="th">${esc(ext)}</div>
+      <div><div class="n">${esc(d.nombre_archivo)}</div><div class="m">${esc(cat(d.categoria))}${d.descripcion ? " · " + esc(d.descripcion) : ""} · ${fmtBytes(d.tamano_bytes)}</div></div>
+      <div class="row"><button type="button" class="btn ghost sm" data-act="ver">Ver</button><button type="button" class="btn danger sm" data-act="borrar" aria-label="Borrar ${esc(d.nombre_archivo)}">✕</button></div></div>`;
+  }).join("");
+  // Miniaturas de las fotos.
+  docs.forEach(async (d, i) => {
+    if (!/^image\/(png|jpeg|webp)$/.test(d.tipo_mime || "")) return;
+    try {
+      const url = await DATOS.urlDocumento(d);
+      const th = box.querySelector(`.doc[data-i="${i}"] .th`);
+      if (th) { const img = new Image(); img.alt = ""; img.src = url; th.replaceChildren(img); }
+    } catch {}
+  });
+  box.onclick = async e => {
+    const b = e.target.closest("button[data-act]"); if (!b) return;
+    const d = docs[+b.closest(".doc").dataset.i];
+    if (b.dataset.act === "ver") {
+      const w = window.open("", "_blank");
+      try { const url = await DATOS.urlDocumento(d); if (w) w.location = url; else location.href = url; }
+      catch (err) { if (w) w.close(); toast(DATOS.errorText(err), true); }
+    } else {
+      if (!confirm(`¿Borrar “${d.nombre_archivo}”?`)) return;
+      try { await DATOS.borrarDocumento(d); toast("Documento borrado"); await pintarDocs(); render(); }
+      catch (err) { toast(DATOS.errorText(err), true); }
+    }
+  };
+}
+$("btnVolver").onclick = () => { actual = null; vista("vLista"); };
+$("btnEditar").onclick = () => abrirForm(actual);
+$("btnBorrar").onclick = async () => {
+  const a = actual;
+  if (!confirm(`¿Borrar la actividad “${a.titulo}” y sus documentos? No se puede deshacer.`)) return;
+  try { await DATOS.borrarActividad(a.id); toast("Actividad borrada"); actual = null; vista("vLista"); await cargar(); }
+  catch (e) { toast(DATOS.errorText(e), true); }
+};
+
+/* ---------- Subir documentos ---------- */
+$("btnElegir").onclick = () => $("docFile").click();
+$("docFile").onchange = e => { subir([...e.target.files]); e.target.value = ""; };
+const drop = $("fDoc");
+["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => subir([...e.dataTransfer.files]));
+const PERMITIDOS = /\.(png|jpe?g|webp|heic|pdf|docx?|xlsx?)$/i;
+async function subir(files){
+  if (!files.length || !actual) return;
+  const a = actual, est = $("docEstado"), meta = {categoria:$("docCat").value, descripcion:$("docDesc").value.trim()};
+  let ok = 0; const fallos = [];
+  $("btnElegir").disabled = true;
+  for (const [i, f] of files.entries()) {
+    est.textContent = `Subiendo ${i + 1} de ${files.length}: ${f.name}…`;
+    if (!PERMITIDOS.test(f.name)) { fallos.push(`${f.name}: tipo de archivo no permitido`); continue; }
+    if (f.size > DATOS.MAX_MB * 1048576) { fallos.push(`${f.name}: pasa de ${DATOS.MAX_MB} MB`); continue; }
+    try { await DATOS.subirDocumento(a.id, f, meta); ok++; }
+    catch (e) { fallos.push(`${f.name}: ${DATOS.errorText(e)}`); }
+  }
+  $("btnElegir").disabled = false;
+  est.textContent = (ok ? `${ok} ${ok === 1 ? "documento subido" : "documentos subidos"}. ` : "") + (fallos.length ? "No se subió: " + fallos.join("; ") : "");
+  if (ok) { $("docDesc").value = ""; await pintarDocs(); render(); }
+}
+
+/* ---------- Formulario ---------- */
+function setMsg(id, t){ const f = $("f-" + id); if (!f) return; f.classList.toggle("bad", !!t); f.querySelector(".msg").textContent = t || ""; }
+function abrirForm(a){
+  $("vForm").reset();
+  ["tipo","titulo","fecha","ubic","participantes","beneficiarios"].forEach(k => setMsg(k, ""));
+  $("formTitulo").textContent = a ? "Editar actividad" : "Nueva actividad";
+  $("aId").value = a ? a.id : "";
+  if (a) {
+    const r = document.querySelector(`input[name=tipo][value="${a.tipo_id}"]`); if (r) r.checked = true;
+    $("titulo").value = a.titulo || ""; $("fecha").value = a.fecha || ""; $("hora").value = fmtHora(a.hora);
+    $("estado").value = a.estado; $("red").value = a.red_id || ""; $("lugar").value = a.lugar || "";
+    $("descripcion").value = a.descripcion || "";
+    $("participantes").value = a.participantes ?? ""; $("beneficiarios").value = a.beneficiarios ?? "";
+    $("lat").value = (+a.latitud).toFixed(6); $("lng").value = (+a.longitud).toFixed(6);
+  } else {
+    const d = new Date(); $("fecha").value = new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    $("estado").value = "programada";
+  }
+  $("geoHint").textContent = "Toque el mapa, use su ubicación o pegue coordenadas o un enlace de Google Maps.";
+  vista("vForm");
+  marcar(!!a);
+}
+$("btnNueva").onclick = () => { actual = null; abrirForm(null); };
+$("btnCancelar").onclick = () => { if ($("aId").value && actual) abrir(actual.id, false); else vista("vLista"); };
+function punto(){ const la = parseFloat($("lat").value), ln = parseFloat($("lng").value); return isFinite(la) && isFinite(ln) ? [la, ln] : null; }
+function ponerPunto(la, ln, desdeMapa){ $("lat").value = la.toFixed(6); $("lng").value = ln.toFixed(6); setMsg("ubic", ""); marcar(!desdeMapa); }
+function marcar(centrar){
+  const p = punto(), el = $("detect");
+  if (!p) { el.className = "detect"; el.textContent = "Marque el punto y el sistema le dirá en qué zona y cantón queda."; }
+  else {
+    const loc = MAPA.locate(p[0], p[1]);
+    if (!loc.zona && !loc.canton) { el.className = "detect out"; el.textContent = "Este punto queda fuera de Ciudad Delgado."; }
+    else { el.className = "detect"; el.innerHTML = `Queda en ${loc.zona ? `<b>Zona ${loc.zona}</b>` : "una zona sin identificar"}${loc.canton ? ` · <b>${esc(loc.canton)}</b>` : ""}`; }
+  }
+  if (!map) return;
+  if (!p) { if (draft) { map.removeLayer(draft); draft = null; } return; }
+  if (!draft) draft = L.circleMarker(p, {radius:12, color:"#00adef", weight:3, dashArray:"4 3", fillColor:"#00adef", fillOpacity:.3}).addTo(map)
+    .bindTooltip("Ubicación de la actividad", {direction:"top", offset:[0,-10]});
+  else draft.setLatLng(p);
+  if (centrar) map.setView(p, Math.max(map.getZoom(), 15));
+}
+["lat","lng"].forEach(id => $(id).addEventListener("change", () => marcar(true)));
+function parseCoords(s){
+  try { s = decodeURIComponent(String(s)); } catch { s = String(s); }
+  const m = /@(-?\d+\.\d+),(-?\d+\.\d+)/.exec(s) || /[?&](?:q|query|ll)=(-?\d+\.\d+),\s*(-?\d+\.\d+)/.exec(s) || /(-?\d{1,2}\.\d{3,})\s*[,;\s]\s*(-?\d{1,3}\.\d{3,})/.exec(s);
+  if (!m) return null;
+  let la = +m[1], ln = +m[2];
+  if (la < 0 && ln > 0) [la, ln] = [ln, la];
+  return isFinite(la) && isFinite(ln) ? [la, ln] : null;
+}
+$("pega").addEventListener("input", e => {
+  const p = parseCoords(e.target.value); if (!p) return;
+  ponerPunto(p[0], p[1], false); e.target.value = "";
+  $("geoHint").textContent = "Coordenadas tomadas del texto pegado. Puede ajustarlas tocando el mapa.";
+});
+$("btnGeo").onclick = () => {
+  const h = $("geoHint");
+  if (!navigator.geolocation) { h.textContent = "Este navegador no comparte la ubicación. Toque el mapa o escriba las coordenadas."; return; }
+  $("btnGeo").disabled = true; h.textContent = "Buscando su ubicación…";
+  navigator.geolocation.getCurrentPosition(pos => {
+    $("btnGeo").disabled = false; ponerPunto(pos.coords.latitude, pos.coords.longitude, false);
+    h.textContent = `Ubicación tomada con precisión de ±${Math.round(pos.coords.accuracy)} m. Puede ajustarla tocando el mapa.`;
+  }, err => {
+    $("btnGeo").disabled = false;
+    h.textContent = err.code === 1 ? "No se dio permiso de ubicación. Toque el mapa o escriba las coordenadas." : "No se pudo obtener la ubicación. Toque el mapa o escriba las coordenadas.";
+  }, {enableHighAccuracy:true, timeout:15000, maximumAge:0});
+};
+
+$("vForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const tipo = document.querySelector("input[name=tipo]:checked");
+  const titulo = $("titulo").value.trim().replace(/\s+/g, " ");
+  const p = punto();
+  const entero = id => { const v = $(id).value.trim(); return v === "" ? null : Number(v); };
+  const part = entero("participantes"), ben = entero("beneficiarios");
+  let ok = true;
+  const chk = (k, cond, t) => { setMsg(k, cond ? "" : t); if (!cond && ok) { ok = false; const f = $("f-" + k).querySelector("input,select"); if (f) f.focus(); } };
+  chk("tipo", !!tipo, "Elija el tipo de actividad.");
+  chk("titulo", titulo.length >= 3, "Escriba un título de al menos 3 letras.");
+  chk("fecha", !!$("fecha").value, "Indique la fecha.");
+  chk("ubic", !!p && Math.abs(p[0]) <= 90 && Math.abs(p[1]) <= 180, "Marque la ubicación en el mapa o escriba las coordenadas.");
+  chk("participantes", part === null || (Number.isInteger(part) && part >= 0), "Escriba un número entero.");
+  chk("beneficiarios", ben === null || (Number.isInteger(ben) && ben >= 0), "Escriba un número entero.");
+  if (!ok) return;
+  const datos = {
+    id: $("aId").value || undefined, tipo_id: +tipo.value, titulo, fecha: $("fecha").value, hora: $("hora").value || null,
+    estado: $("estado").value, red_id: $("red").value || null, lugar: $("lugar").value.trim() || null,
+    descripcion: $("descripcion").value.trim() || null, participantes: part, beneficiarios: ben, latitud: p[0], longitud: p[1]
+  };
+  const btn = $("btnGuardar"); btn.disabled = true; btn.textContent = "Guardando…";
+  try {
+    const id = await DATOS.guardarActividad(datos);
+    toast(datos.id ? "Actividad actualizada" : "Actividad guardada. Ya puede subir sus documentos.");
+    await cargar();
+    abrir(id, true);
+  } catch (err) { toast(DATOS.errorText(err), true); }
+  finally { btn.disabled = false; btn.textContent = "Guardar actividad"; }
+});
+
+/* ---------- Inicio ---------- */
+(async () => {
+  await RC.requireSession();
+  RC.header("actividades");
+  DATOS.init();
+  llenarCatalogos();
+  initMapa();
+  await cargar();
+  if (map) setTimeout(() => map.invalidateSize(), 50);
+})();
+</script>
+</body>
+</html>

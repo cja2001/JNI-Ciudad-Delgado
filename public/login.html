@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Redes Cyan · Iniciar sesión</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap">
+<style>
+/* Diseño: panel de marca en cian a la izquierda (arriba en teléfono) y tarjeta de acceso a la derecha. Un solo tema, a propósito. */
+:root{
+  --cyan:#00adef; --cyan-deep:#0084b8; --cyan-ink:#003a52; --cyan-soft:#e3f7fd;
+  --navy:#071f2e; --ink:#0d2633; --muted:#5a7684; --line:#cfe3ea; --paper:#ffffff; --ground:#f2f9fb;
+  --lime:#c8f560; --bad:#c62839; --bad-soft:#fde8ea; --ok:#11805a; --ok-soft:#e2f6ee;
+  --f-display:"Bricolage Grotesque","Arial Black",system-ui,sans-serif;
+  --f-body:"Plus Jakarta Sans","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.5 var(--f-body)}
+.shell{min-height:100%;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
+@media (max-width:860px){.shell{grid-template-columns:minmax(0,1fr)}}
+
+/* Panel de marca */
+.brand{position:relative;overflow:hidden;color:#fff;background:linear-gradient(155deg,var(--cyan) 0%,var(--cyan-deep) 55%,var(--cyan-ink) 100%);
+  padding:clamp(24px,5vw,56px);display:flex;flex-direction:column;justify-content:space-between;gap:32px;isolation:isolate}
+.brand::before{content:"";position:absolute;inset:-20% -30% auto auto;width:70%;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.28),rgba(255,255,255,0) 60%);z-index:-1}
+.stripes{position:absolute;right:-60px;bottom:-40px;width:340px;height:340px;z-index:-1;opacity:.22;
+  background:repeating-linear-gradient(-35deg,#fff 0 14px,transparent 14px 34px);border-radius:48px;transform:rotate(8deg)}
+.logo-row{display:flex;align-items:center;gap:14px}
+.logo{height:52px;width:auto;aspect-ratio:3/2;object-fit:cover;border-radius:6px;box-shadow:0 0 0 2px #fff,0 6px 16px rgba(0,30,45,.35)}
+.wordmark{font:800 1.35rem/1 var(--f-display);letter-spacing:-.01em;text-transform:uppercase}
+.wordmark small{display:block;font:700 .7rem var(--f-body);letter-spacing:.18em;opacity:.85;margin-top:4px}
+.pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);
+  padding:6px 12px;border-radius:999px;font-weight:700;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 4px rgba(200,245,96,.25)}
+.hero h1{font:800 clamp(2.2rem,5.4vw,4.4rem)/.95 var(--f-display);letter-spacing:-.03em;margin:18px 0 16px;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--navy);background:var(--lime);padding:0 .14em;border-radius:.14em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.hero p{max-width:34ch;font-size:1.05rem;opacity:.95;margin:0}
+.facts{display:flex;flex-wrap:wrap;gap:10px}
+.fact{background:rgba(7,31,46,.28);border-radius:14px;padding:10px 14px;min-width:110px}
+.fact b{display:block;font:800 1.5rem/1 var(--f-display)}
+.fact span{font-size:.75rem;opacity:.9;text-transform:uppercase;letter-spacing:.08em}
+@media (max-width:860px){.brand{gap:20px}.hero h1{margin:14px 0 10px}.facts{display:none}}
+
+/* Tarjeta de acceso */
+.side{display:grid;place-items:center;padding:clamp(20px,5vw,56px) 16px}
+.card{width:100%;max-width:420px;background:var(--paper);border-radius:24px;padding:clamp(22px,4vw,36px);
+  box-shadow:0 1px 0 var(--line),0 24px 60px -24px rgba(0,58,82,.28);display:flex;flex-direction:column;gap:20px}
+.card h2{font:800 1.7rem/1.1 var(--f-display);margin:0;letter-spacing:-.02em}
+.card .lead{margin:6px 0 0;color:var(--muted)}
+form{display:flex;flex-direction:column;gap:14px}
+.f{display:flex;flex-direction:column;gap:6px}
+label{font-weight:700;font-size:.85rem}
+.inp{position:relative}
+input{font:inherit;color:var(--ink);width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--ground);transition:border-color .15s,background .15s}
+input:focus{outline:none;border-color:var(--cyan);background:#fff;box-shadow:0 0 0 4px var(--cyan-soft)}
+.inp input{padding-right:84px}
+.peek{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--cyan-deep);font:700 .8rem var(--f-body);padding:6px 8px;border-radius:8px;cursor:pointer}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:.85rem}
+.link{border:0;background:none;color:var(--cyan-deep);font:700 .85rem var(--f-body);cursor:pointer;padding:4px 0;text-decoration:underline;text-underline-offset:3px}
+.btn{font:800 1rem var(--f-display);letter-spacing:.01em;border:0;border-radius:14px;padding:15px 18px;cursor:pointer;color:#fff;
+  background:linear-gradient(90deg,var(--cyan) 0%,var(--cyan-deep) 100%);box-shadow:0 10px 24px -12px rgba(0,132,184,.9);transition:transform .12s,box-shadow .12s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 14px 28px -12px rgba(0,132,184,.95)}
+.btn:disabled{opacity:.6;cursor:default;transform:none}
+.btn:focus-visible,.link:focus-visible,.peek:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+.note{font-size:.8rem;color:var(--muted);text-align:center;margin:0}
+.alert{border-radius:12px;padding:10px 12px;font-size:.88rem}
+.alert.bad{background:var(--bad-soft);color:var(--bad)}
+.alert.ok{background:var(--ok-soft);color:var(--ok)}
+.alert.cfg{background:#fff7db;color:#6b4e00;border:1px dashed #e0b400}
+.alert code{font-size:.8rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <section class="brand" aria-label="Juventud Nuevas Ideas">
+    <div class="stripes" aria-hidden="true"></div>
+    <div class="logo-row">
+      <!-- La bandera va como logo.png junto a este archivo. -->
+      <img class="logo" id="logo" src="logo.png" alt="Bandera de Nuevas Ideas" onerror="this.hidden=true">
+      <div class="wordmark" id="wordmark">Nuevas Ideas<small>Juventud</small></div>
+    </div>
+    <div class="hero">
+      <span class="pill"><i></i>Redes Cyan · Ciudad Delgado</span>
+      <h1>Tu red.<br>Tu colonia.<br><em>Tu futuro.</em></h1>
+      <p>Organiza a tu red, suma integrantes y marca en el mapa dónde están trabajando los jóvenes del distrito.</p>
+    </div>
+    <div class="facts" aria-label="Datos del distrito">
+      <div class="fact"><b>18</b><span>Zonas</span></div>
+      <div class="fact"><b>11</b><span>Cantones y barrios</span></div>
+      <div class="fact"><b>20</b><span>Integrantes por red</span></div>
+    </div>
+  </section>
+
+  <section class="side">
+    <div class="card">
+      <div>
+        <h2 id="title">Inicia sesión</h2>
+        <p class="lead" id="lead">Entra con el correo que te asignó tu coordinación.</p>
+      </div>
+      <div class="alert cfg" id="cfgAlert" hidden>Falta conectar Supabase: define <code>SUPABASE_URL</code> y <code>SUPABASE_ANON_KEY</code> en el archivo <code>.env</code> o en las variables de entorno de Vercel. Mientras tanto puedes <a href="inicio.html">probar el sistema en modo demostración</a>.</div>
+      <div class="alert" id="msg" role="status" aria-live="polite" hidden></div>
+
+      <!-- Inicio de sesión -->
+      <form id="fLogin" novalidate>
+        <div class="f"><label for="email">Correo</label><input id="email" type="email" autocomplete="email" inputmode="email" placeholder="tu@correo.com" required></div>
+        <div class="f">
+          <label for="pass">Contraseña</label>
+          <div class="inp"><input id="pass" type="password" autocomplete="current-password" placeholder="Tu contraseña" required minlength="6"><button type="button" class="peek" data-for="pass" aria-label="Mostrar contraseña">Mostrar</button></div>
+        </div>
+        <div class="row"><span></span><button type="button" class="link" id="toReset">¿Olvidaste tu contraseña?</button></div>
+        <button class="btn" id="bLogin" type="submit">Entrar</button>
+      </form>
+
+      <!-- Recuperar contraseña -->
+      <form id="fReset" novalidate hidden>
+        <div class="f"><label for="rEmail">Correo</label><input id="rEmail" type="email" autocomplete="email" inputmode="email" placeholder="tu@correo.com" required></div>
+        <button class="btn" id="bReset" type="submit">Enviar enlace</button>
+        <div class="row"><button type="button" class="link" id="toLogin">Volver a iniciar sesión</button></div>
+      </form>
+
+      <!-- Nueva contraseña (al abrir el enlace del correo) -->
+      <form id="fNew" novalidate hidden>
+        <div class="f">
+          <label for="nPass">Nueva contraseña</label>
+          <div class="inp"><input id="nPass" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres" required minlength="8"><button type="button" class="peek" data-for="nPass" aria-label="Mostrar contraseña">Mostrar</button></div>
+        </div>
+        <div class="f"><label for="nPass2">Repite la contraseña</label><input id="nPass2" type="password" autocomplete="new-password" required minlength="8"></div>
+        <button class="btn" id="bNew" type="submit">Guardar contraseña</button>
+      </form>
+
+      <p class="note">Acceso solo para coordinadores y digitadores autorizados.</p>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<script src="env.js"></script>
+<script src="config.js"></script>
+<script>
+const DESTINO = "inicio.html";   // menú principal después de entrar
+const $ = id => document.getElementById(id);
+const sb = window.RC ? RC.sb : null;
+
+
+function show(kind, text){ const m = $("msg"); m.className = "alert " + kind; m.textContent = text; m.hidden = !text; }
+function view(name){
+  $("fLogin").hidden = name !== "login"; $("fReset").hidden = name !== "reset"; $("fNew").hidden = name !== "new";
+  $("title").textContent = {login:"Inicia sesión", reset:"Recupera tu acceso", new:"Crea tu nueva contraseña"}[name];
+  $("lead").textContent = {login:"Entra con el correo que te asignó tu coordinación.",
+    reset:"Te enviaremos un enlace para crear una contraseña nueva.", new:"Escríbela dos veces para confirmarla."}[name];
+  show("", "");
+}
+function busy(btn, on, label){ btn.disabled = on; if (label) btn.textContent = label; }
+function errorText(e){
+  const m = String(e && (e.message || e.error_description) || "");
+  if (/invalid login credentials/i.test(m)) return "Correo o contraseña incorrectos.";
+  if (/email not confirmed/i.test(m)) return "Tu correo aún no está confirmado. Revisa tu bandeja de entrada.";
+  if (/rate limit|too many/i.test(m)) return "Demasiados intentos. Espera un momento y vuelve a intentar.";
+  if (/password should be at least/i.test(m)) return "La contraseña es demasiado corta.";
+  if (/banned/i.test(m)) return "Tu cuenta está desactivada. Habla con un administrador.";
+  if (/failed to fetch|network/i.test(m)) return "No hay conexión con el servidor. Revisa tu internet.";
+  return "No se pudo completar. Intenta de nuevo.";
+}
+function needConfig(){ if (!sb) { $("cfgAlert").hidden = false; show("bad", "Todavía no se puede entrar: falta conectar la base de datos."); return true; } return false; }
+
+document.querySelectorAll(".peek").forEach(b => b.addEventListener("click", () => {
+  const i = $(b.dataset.for), vis = i.type === "password";
+  i.type = vis ? "text" : "password"; b.textContent = vis ? "Ocultar" : "Mostrar";
+  b.setAttribute("aria-label", vis ? "Ocultar contraseña" : "Mostrar contraseña");
+}));
+$("toReset").addEventListener("click", () => { $("rEmail").value = $("email").value; view("reset"); $("rEmail").focus(); });
+$("toLogin").addEventListener("click", () => { view("login"); $("email").focus(); });
+
+$("fLogin").addEventListener("submit", async e => {
+  e.preventDefault();
+  const email = $("email").value.trim(), password = $("pass").value;
+  if (!/^\S+@\S+\.\S+$/.test(email)) { show("bad", "Escribe un correo válido."); $("email").focus(); return; }
+  if (password.length < 6) { show("bad", "Escribe tu contraseña."); $("pass").focus(); return; }
+  if (needConfig()) return;
+  busy($("bLogin"), true, "Entrando…");
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) { busy($("bLogin"), false, "Entrar"); show("bad", errorText(error)); return; }
+  show("ok", "¡Bienvenido! Abriendo el registro…");
+  location.replace(DESTINO);
+});
+
+$("fReset").addEventListener("submit", async e => {
+  e.preventDefault();
+  const email = $("rEmail").value.trim();
+  if (!/^\S+@\S+\.\S+$/.test(email)) { show("bad", "Escribe un correo válido."); return; }
+  if (needConfig()) return;
+  busy($("bReset"), true, "Enviando…");
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.href.split("#")[0] });
+  busy($("bReset"), false, "Enviar enlace");
+  if (error) { show("bad", errorText(error)); return; }
+  show("ok", "Listo. Si el correo está registrado, te llegará un enlace en unos minutos.");
+});
+
+$("fNew").addEventListener("submit", async e => {
+  e.preventDefault();
+  const p1 = $("nPass").value, p2 = $("nPass2").value;
+  if (p1.length < 8) { show("bad", "Usa al menos 8 caracteres."); return; }
+  if (p1 !== p2) { show("bad", "Las contraseñas no coinciden."); return; }
+  busy($("bNew"), true, "Guardando…");
+  const { error } = await sb.auth.updateUser({ password: p1 });
+  busy($("bNew"), false, "Guardar contraseña");
+  if (error) { show("bad", errorText(error)); return; }
+  show("ok", "Contraseña guardada. Abriendo el registro…");
+  setTimeout(() => location.replace(DESTINO), 900);
+});
+
+(async () => {
+  if (/[?&]inactivo=1/.test(location.search)) show("bad", "Tu cuenta está desactivada. Habla con un administrador.");
+  if (!sb) { $("cfgAlert").hidden = false; return; }
+  sb.auth.onAuthStateChange(evt => { if (evt === "PASSWORD_RECOVERY") view("new"); });
+  // Si viene del enlace de recuperación, se queda para crear la contraseña; si ya tiene sesión, entra directo.
+  if (/type=recovery/.test(location.hash)) return;
+  const { data } = await sb.auth.getSession();
+  if (data && data.session) location.replace(DESTINO);
+})();
+</script>
+</body>
+</html>
