@@ -8,6 +8,7 @@ Sistema para registrar las redes cyan del distrito Ciudad Delgado (San Salvador 
 | `inicio.html` | Menú principal con totales. |
 | `index.html` | Registro de redes (logo, lema, comunidades, responsable y hasta 20 integrantes) con mapa y exportación a Excel. |
 | `actividades.html` | Mapa de actividades (jornadas de limpieza, fiestas, bacheos, cine comunitario, reparaciones de parques) y documentos de seguimiento. |
+| `mapa.html` | Mapa general (OpenLayers): 18 zonas, 19 centros de votación, redes y actividades. |
 | `usuarios.html` | Solo administradores: crear cuentas, cambiar roles y contraseñas, desactivar. |
 
 ## Estructura
@@ -15,7 +16,7 @@ Sistema para registrar las redes cyan del distrito Ciudad Delgado (San Salvador 
 public/      Sitio que se publica (HTML, CSS, JS, mapa base)
 supabase/    Script de la base de datos, función admin-usuarios y guía (LEEME.md)
 scripts/     generar-env.mjs: escribe public/env.js con las variables de entorno
-datos/       Límites de las 18 zonas y de cantones y barrios (GeoJSON y KML)
+datos/       18 zonas (KML y GeoJSON), cantones y barrios, y los 19 centros de votación (sin datos personales)
 ```
 
 ## Credenciales

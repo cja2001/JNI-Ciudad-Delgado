@@ -3,7 +3,8 @@
 ## Cómo crearla
 1. Entre a su proyecto en supabase.com y abra **SQL Editor > New query**.
 2. Pegue todo el contenido de `redes_cyan_supabase.sql` y presione **Run**.
-3. Revise en **Table Editor** que existan las tablas `redes`, `personas`, `red_comunidades`, `zonas` (18), `cantones` (11), `ejes` (5), `actividades`, `actividad_documentos`, `tipos_actividad` (6) y `perfiles`.
+3. Revise en **Table Editor** que existan las tablas `redes`, `personas`, `red_comunidades`, `zonas` (18), `cantones` (11), `ejes` (5), `actividades`, `actividad_documentos`, `tipos_actividad` (6), `perfiles`, `centros_votacion` (19) y `centros_votacion_jefes`.
+4. Si quiere cargar los jefes de centro, ejecute también `privado/jefes_centros.sql`. Ese archivo tiene nombres, DUI y teléfonos, por eso no está en GitHub.
 
 El script se puede volver a ejecutar sin perder datos: solo crea lo que falta y actualiza los catálogos y los límites de zonas y cantones.
 
@@ -24,12 +25,17 @@ El script se puede volver a ejecutar sin perder datos: solo crea lo que falta y 
 | `actividades` | Una fila por actividad: tipo, título, fecha, hora, estado, red que la organiza, lugar, participantes, beneficiarios y ubicación. |
 | `actividad_documentos` | Fotos, actas, listas de asistencia e informes de cada actividad. |
 | `v_actividades`, `v_resumen_actividades` | Lista de actividades con su zona y cantón, y totales por tipo. |
+| `centros_votacion` | Los 19 centros de votación con su ubicación; la zona y el cantón se calculan solos. |
+| `centros_votacion_jefes` | Jefe de cada centro (nombre, DUI, teléfono). Solo la ven los administradores. |
+| `v_centros` | Centros con el número de redes y personas de cada uno. |
 | `perfiles` | Nombre, rol (`admin` o `usuario`) y estado de cada cuenta. Se crea solo al crear la cuenta. |
 | Bucket `documentos-actividades` | Privado. Fotos, PDF, Word y Excel hasta 20 MB. Se ven con enlaces temporales. |
 
 ## Reglas automáticas
 - La **zona** y el **cantón/barrio** se calculan solos con la latitud y longitud. Si se envía una zona distinta a la del punto, se respeta y `v_redes.zona_difiere` lo marca.
 - Nombres de personas en mayúsculas y espacios de más eliminados.
+- Cada red queda enlazada a su centro de votación (`redes.centro_id`) cuando el nombre coincide con uno de los 19.
+- Las zonas traen su punto de rótulo (`zonas.etiqueta`), en el mismo lugar que en el mapa oficial.
 - Formatos: DUI `00000000-0`, teléfono `0000-0000` empezando con 2, 6 o 7.
 - Máximo 20 integrantes por red y al menos una comunidad.
 - `v_personas_export."DUI verificado"` indica si el dígito verificador del DUI cuadra.
@@ -72,6 +78,7 @@ Para editar, envíe también `id` con el id de la red. Si no envía `zona`, se t
 | `inicio.html` | Menú principal con los totales de redes y actividades. |
 | `index.html` | Registro de redes con mapa y exportación a Excel. |
 | `actividades.html` | Mapa de actividades, registro y documentos de seguimiento. |
+| `mapa.html` | Mapa general con OpenLayers: zonas, centros de votación, redes y actividades. |
 | `usuarios.html` | Solo administradores: crear cuentas, cambiar roles, contraseñas y desactivar. |
 
 Para conectarlo:

@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mapa · Redes Cyan</title>
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@10.10.0/ol.css">
+<style>
+:root{--cyan:#00adef;--cyan-d:#0084b8;--ink:#071f2e;--muted:#4b6474;--bg:#f2f9fd;--card:#fff;--line:#d5e8f2}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font:400 .9rem/1.45 "Plus Jakarta Sans","Segoe UI",system-ui,sans-serif}
+button,select,input{font:inherit;color:inherit}
+.wrap{position:relative;flex:1;min-height:0}
+#map{position:absolute;inset:0;background:#eef3f6}
+.panel{position:absolute;z-index:5;top:12px;left:12px;width:300px;max-height:calc(100% - 24px);overflow:auto;background:rgba(255,255,255,.96);
+  border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 28px rgba(7,31,46,.14);padding:14px}
+.panel h1{font:800 1.15rem/1.1 "Bricolage Grotesque",system-ui,sans-serif;margin:0 0 2px}
+.panel .sub{color:var(--muted);font-size:.78rem;margin:0 0 12px}
+.sec{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+.capa{display:flex;align-items:center;gap:9px;padding:6px 4px;border-radius:9px;cursor:pointer}
+.capa:hover{background:#f1f8fc}
+.capa input{width:16px;height:16px;accent-color:var(--cyan-d);margin:0}
+.capa .sw{width:14px;height:14px;border-radius:4px;flex:none}
+.capa .n{margin-left:auto;font-size:.75rem;font-weight:700;color:var(--muted)}
+.bases{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.bases button{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:6px;font-size:.78rem;font-weight:700;cursor:pointer}
+.bases button.on{border-color:var(--cyan);background:#e7f6fd;color:var(--cyan-d)}
+select{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:7px 9px;background:#fff}
+.btn-panel{display:none;position:absolute;z-index:6;top:12px;left:12px;border:0;border-radius:999px;background:#fff;box-shadow:0 4px 14px rgba(7,31,46,.2);padding:8px 14px;font-weight:700;cursor:pointer}
+.ley{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;font-size:.74rem}
+.ley i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:0}
+.pop{position:relative;background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(7,31,46,.25);padding:10px 12px;min-width:200px;max-width:280px;font-size:.82rem}
+.pop::after{content:"";position:absolute;left:50%;bottom:-7px;margin-left:-7px;border:7px solid transparent;border-bottom:0;border-top-color:#fff}
+.pop b{display:block;font-size:.9rem;line-height:1.25;margin-bottom:3px}
+.pop .m{color:var(--muted)}
+.pop .x{position:absolute;top:4px;right:6px;border:0;background:none;font-size:1rem;cursor:pointer;color:var(--muted)}
+.ol-zoom{top:auto;left:auto;right:12px;bottom:36px}
+.ol-zoom button{background:#fff!important;color:var(--ink)!important;width:32px!important;height:32px!important;border-radius:8px!important;margin:2px!important;box-shadow:0 2px 8px rgba(7,31,46,.2)}
+.ol-attribution{font-size:.68rem}
+button:focus-visible,select:focus-visible,.capa:has(input:focus-visible){outline:3px solid var(--cyan);outline-offset:2px}
+@media (max-width:700px){
+  .panel{top:auto;bottom:0;left:0;right:0;width:auto;max-height:55%;border-radius:16px 16px 0 0}
+  .panel.cerrado{display:none}
+  .btn-panel{display:block}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="map" role="application" aria-label="Mapa de Ciudad Delgado"></div>
+  <button class="btn-panel" id="btnPanel" type="button" aria-controls="panel">Capas</button>
+  <aside class="panel" id="panel" aria-label="Capas del mapa">
+    <h1>Ciudad Delgado</h1>
+    <p class="sub">18 zonas · 19 centros de votación</p>
+
+    <div class="sec">Ir a</div>
+    <select id="irZona" aria-label="Ir a una zona"><option value="">Todo el distrito</option></select>
+
+    <div class="sec">Capas</div>
+    <label class="capa"><input type="checkbox" data-capa="zonas" checked><span class="sw" style="background:#7fd8f5;border:2px solid #0aa5d6"></span>Zonas<span class="n">18</span></label>
+    <label class="capa"><input type="checkbox" data-capa="cantones"><span class="sw" style="border:2px dashed #c2410c"></span>Cantones y barrios<span class="n">11</span></label>
+    <label class="capa"><input type="checkbox" data-capa="centros" checked><span class="sw" style="background:#071f2e;border-radius:50%"></span>Centros de votación<span class="n" id="nCentros">19</span></label>
+    <label class="capa"><input type="checkbox" data-capa="redes" checked><span class="sw" style="background:#00adef;border-radius:50%"></span>Redes<span class="n" id="nRedes">0</span></label>
+    <label class="capa"><input type="checkbox" data-capa="actividades" checked><span class="sw" style="background:conic-gradient(#16a34a 0 33%,#db2777 0 66%,#7c3aed 0)"></span>Actividades<span class="n" id="nActs">0</span></label>
+    <div class="ley" id="ley" style="margin:4px 0 0 27px"></div>
+
+    <div class="sec">Fondo</div>
+    <div class="bases" id="bases">
+      <button type="button" data-base="claro" class="on">Claro</button>
+      <button type="button" data-base="calles">Calles</button>
+      <button type="button" data-base="satelite">Satélite</button>
+      <button type="button" data-base="oficial">Mapa oficial</button>
+    </div>
+  </aside>
+  <div id="popup" class="pop" hidden><button class="x" type="button" aria-label="Cerrar">×</button><div id="popBody"></div></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/ol@10.10.0/dist/ol.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<script src="env.js"></script>
+<script src="config.js"></script>
+<script src="assets/mapa-base.js"></script>
+<script src="assets/centros.js"></script>
+<script src="assets/datos.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const { Map, View, Feature, Overlay } = ol;
+const { Tile: TileLayer, Vector: VectorLayer, Image: ImageLayer } = ol.layer;
+const { XYZ, OSM, Vector: VectorSource, ImageStatic } = ol.source;
+const { Style, Fill, Stroke, Text, Circle: CircleStyle } = ol.style;
+const fromLonLat = ol.proj.fromLonLat;
+const geojson = new ol.format.GeoJSON({ featureProjection: "EPSG:3857" });
+
+/* ---------- Fondos ---------- */
+const BASES = {
+  claro: new TileLayer({ source: new XYZ({ url: "https://{a-d}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png", maxZoom: 20,
+    attributions: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · © <a href="https://carto.com/attributions">CARTO</a>' }) }),
+  calles: new TileLayer({ source: new OSM(), visible: false }),
+  satelite: new TileLayer({ visible: false, source: new XYZ({ maxZoom: 19,
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", attributions: "Imágenes © Esri" }) }),
+  oficial: new ImageLayer({ visible: false, source: new ImageStatic({ url: "assets/satelite.jpg", projection: "EPSG:3857",
+    imageExtent: ol.extent.boundingExtent([fromLonLat([MAPA.IMG_BOUNDS[0][1], MAPA.IMG_BOUNDS[0][0]]), fromLonLat([MAPA.IMG_BOUNDS[1][1], MAPA.IMG_BOUNDS[1][0]])]),
+    attributions: "Mapa oficial de zonas del distrito" }) })
+};
+
+/* ---------- Distrito, zonas y cantones ---------- */
+const zonasSrc = new VectorSource({ features: geojson.readFeatures(MAPA.ZONAS) });
+const distrito = ol.extent.createEmpty();
+zonasSrc.getFeatures().forEach(f => ol.extent.extend(distrito, f.getGeometry().getExtent()));
+
+// Todo lo que está fuera del distrito se aclara, para que la vista se concentre en Ciudad Delgado.
+const mundo = [[-20037508, -20037508], [20037508, -20037508], [20037508, 20037508], [-20037508, 20037508], [-20037508, -20037508]];
+const contornos = [];
+zonasSrc.getFeatures().forEach(f => f.getGeometry().getPolygons().forEach(p => contornos.push(p)));
+const union = contornos.reduce((acc, p) => acc.concat([p.getLinearRing(0).getCoordinates()]), []);
+const mascara = new VectorLayer({
+  source: new VectorSource({ features: [new Feature(new ol.geom.Polygon([mundo, ...union]))] }),
+  style: new Style({ fill: new Fill({ color: "rgba(255,255,255,.55)" }) }),
+  zIndex: 1
+});
+
+let zonaActiva = null;
+const zonaStyle = f => {
+  const on = zonaActiva === f.get("zona");
+  return new Style({
+    fill: new Fill({ color: on ? "rgba(0,173,239,.22)" : "rgba(0,173,239,.06)" }),
+    stroke: new Stroke({ color: on ? "#0084b8" : "#0aa5d6", width: on ? 3 : 1.6 })
+  });
+};
+const zonas = new VectorLayer({ source: zonasSrc, style: zonaStyle, zIndex: 2 });
+const rotulos = new VectorLayer({
+  zIndex: 6, declutter: true,
+  source: new VectorSource({ features: MAPA.ZONAS.features.map(f => new Feature({ geometry: new ol.geom.Point(fromLonLat([f.properties.lab[1], f.properties.lab[0]])), zona: f.properties.zona })) }),
+  style: f => new Style({ text: new Text({ text: "ZONA " + f.get("zona"), font: '800 12px "Bricolage Grotesque", system-ui, sans-serif',
+    fill: new Fill({ color: "#0b5d7e" }), stroke: new Stroke({ color: "#fff", width: 4 }) }) })
+});
+const cantones = new VectorLayer({ visible: false, zIndex: 3, declutter: true,
+  source: new VectorSource({ features: geojson.readFeatures(MAPA.CANTONES) }),
+  style: f => new Style({ stroke: new Stroke({ color: "#c2410c", width: 1.4, lineDash: [6, 5] }),
+    text: new Text({ text: f.get("nombre"), font: '600 11px "Plus Jakarta Sans", system-ui, sans-serif', fill: new Fill({ color: "#9a3412" }),
+      stroke: new Stroke({ color: "#fff", width: 3 }), overflow: true }) })
+});
+
+/* ---------- Puntos ---------- */
+const punto = (lat, lng, props) => new Feature({ geometry: new ol.geom.Point(fromLonLat([+lng, +lat])), ...props });
+const centros = new VectorLayer({ zIndex: 7, declutter: false, source: new VectorSource(),
+  style: (f, res) => new Style({
+    image: new CircleStyle({ radius: 11, fill: new Fill({ color: "#071f2e" }), stroke: new Stroke({ color: "#fff", width: 2 }) }),
+    text: new Text({ text: String(f.get("id")), font: '800 11px "Plus Jakarta Sans", system-ui, sans-serif', fill: new Fill({ color: "#fff" }) })
+  })
+});
+const redes = new VectorLayer({ zIndex: 8, source: new VectorSource(),
+  style: new Style({ image: new CircleStyle({ radius: 6, fill: new Fill({ color: "#00adef" }), stroke: new Stroke({ color: "#fff", width: 2 }) }) })
+});
+const colorTipo = id => (DATOS.tipoPorId(id) || { color: "#64748b" }).color;
+const actividades = new VectorLayer({ zIndex: 9, source: new VectorSource(),
+  style: f => new Style({ image: new ol.style.RegularShape({ points: 4, radius: 8, angle: Math.PI / 4,
+    fill: new Fill({ color: colorTipo(f.get("tipo_id")) }), stroke: new Stroke({ color: "#fff", width: 2 }) }) })
+});
+const CAPAS = { zonas: [zonas, rotulos], cantones: [cantones], centros: [centros], redes: [redes], actividades: [actividades] };
+
+/* ---------- Mapa ---------- */
+const popup = new Overlay({ element: $("popup"), positioning: "bottom-center", offset: [0, -16], autoPan: { animation: { duration: 200 } } });
+const map = new Map({
+  target: "map",
+  layers: [...Object.values(BASES), mascara, zonas, cantones, rotulos, centros, redes, actividades],
+  overlays: [popup],
+  view: new View({ center: ol.extent.getCenter(distrito), zoom: 13, minZoom: 11, maxZoom: 19,
+    extent: ol.extent.buffer(distrito, 6000), constrainOnlyCenter: true })
+});
+const encuadrar = ext => map.getView().fit(ext, { padding: innerWidth > 700 ? [30, 30, 30, 340] : [20, 20, 20, 20], duration: 300, maxZoom: 17 });
+encuadrar(distrito);
+
+document.querySelectorAll("[data-capa]").forEach(i => i.addEventListener("change", () => CAPAS[i.dataset.capa].forEach(l => l.setVisible(i.checked))));
+$("bases").addEventListener("click", e => {
+  const b = e.target.closest("button[data-base]"); if (!b) return;
+  for (const [k, l] of Object.entries(BASES)) l.setVisible(k === b.dataset.base);
+  $("bases").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+  mascara.setVisible(b.dataset.base !== "oficial");
+});
+$("irZona").insertAdjacentHTML("beforeend", MAPA.ZONAS.features.map(f => f.properties.zona).sort((a, b) => a - b).map(z => `<option value="${z}">Zona ${z}</option>`).join(""));
+$("irZona").addEventListener("change", e => {
+  zonaActiva = +e.target.value || null; zonas.changed(); popup.setPosition(undefined); $("popup").hidden = true;
+  const f = zonasSrc.getFeatures().find(x => x.get("zona") === zonaActiva);
+  encuadrar(f ? f.getGeometry().getExtent() : distrito);
+});
+$("ley").innerHTML = DATOS.TIPOS.map(t => `<span><i style="background:${t.color}"></i>${esc(t.nombre.replace("Reparación de estructuras de parques", "Reparación de parques"))}</span>`).join("");
+$("btnPanel").addEventListener("click", () => $("panel").classList.toggle("cerrado"));
+if (innerWidth <= 700) $("panel").classList.add("cerrado");
+
+/* ---------- Ventana de información ---------- */
+function abrirPopup(coord, html){ $("popBody").innerHTML = html; $("popup").hidden = false; popup.setPosition(coord); }
+$("popup").querySelector(".x").addEventListener("click", () => { popup.setPosition(undefined); $("popup").hidden = true; });
+map.on("singleclick", e => {
+  const f = map.forEachFeatureAtPixel(e.pixel, (f, l) => (l === centros || l === redes || l === actividades) ? f : null, { hitTolerance: 4 });
+  if (f) {
+    const p = f.getProperties(), coord = f.getGeometry().getCoordinates();
+    if (p.capa === "centro") abrirPopup(coord, `<b>${esc(p.nombre)}</b><span class="m">Centro de votación ${p.id} · ${p.zona ? "Zona " + p.zona : ""}${p.canton ? " · " + esc(p.canton) : ""}</span><br>${p.redes} ${p.redes === 1 ? "red" : "redes"} · ${p.personas} personas`);
+    if (p.capa === "red") abrirPopup(coord, `<b>${esc(p.nombre)}</b>${p.lema ? `<i>${esc(p.lema)}</i><br>` : ""}<span class="m">${p.zona ? "Zona " + p.zona + " · " : ""}${p.integrantes} integrantes</span>${p.centro_votacion ? `<br><span class="m">${esc(p.centro_votacion)}</span>` : ""}<br><a href="index.html">Ver en Redes</a>`);
+    if (p.capa === "actividad") abrirPopup(coord, `<b>${esc(p.titulo)}</b><span class="m">${esc(p.tipo || (DATOS.tipoPorId(p.tipo_id) || {}).nombre)} · ${esc(p.fecha)} · ${esc(p.estado)}</span>${p.lugar ? `<br>${esc(p.lugar)}` : ""}<br><a href="actividades.html">Ver en Actividades</a>`);
+    return;
+  }
+  const z = map.forEachFeatureAtPixel(e.pixel, (f, l) => l === zonas ? f : null);
+  if (z) abrirPopup(e.coordinate, `<b>Zona ${z.get("zona")}</b><span class="m">${centros.getSource().getFeatures().filter(c => c.get("zona") === z.get("zona")).map(c => esc(c.get("nombre"))).join("<br>") || "Sin centro de votación"}</span>`);
+  else { popup.setPosition(undefined); $("popup").hidden = true; }
+});
+map.on("pointermove", e => {
+  if (e.dragging) return;
+  map.getTargetElement().style.cursor = map.hasFeatureAtPixel(e.pixel, { layerFilter: l => l === centros || l === redes || l === actividades }) ? "pointer" : "";
+});
+
+/* ---------- Datos ---------- */
+(async () => {
+  await RC.requireSession();
+  RC.header("mapa");
+  map.updateSize();
+  encuadrar(distrito);   // la barra superior cambió el alto del mapa
+  DATOS.init();
+  const [cs, rs, as] = await Promise.all([
+    DATOS.centros().catch(() => []), DATOS.redes().catch(() => []), DATOS.actividades().catch(() => [])
+  ]);
+  centros.getSource().addFeatures(cs.map(c => punto(c.latitud, c.longitud, { ...c, capa: "centro" })));
+  const ok = r => isFinite(+r.latitud) && isFinite(+r.longitud) && r.latitud !== null;
+  redes.getSource().addFeatures(rs.filter(ok).map(r => punto(r.latitud, r.longitud, { ...r, capa: "red" })));
+  actividades.getSource().addFeatures(as.filter(ok).map(a => punto(a.latitud, a.longitud, { ...a, capa: "actividad" })));
+  $("nCentros").textContent = cs.length; $("nRedes").textContent = rs.filter(ok).length; $("nActs").textContent = as.filter(ok).length;
+})();
+</script>
+</body>
+</html>

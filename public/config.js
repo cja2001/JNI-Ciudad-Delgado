@@ -62,7 +62,7 @@ const SUPABASE_KEY = String(ENV.SUPABASE_ANON_KEY || "").trim();   // clave "ano
         `<a href="${href}" class="${active === key ? "on" : ""}"${active === key ? ' aria-current="page"' : ""}>${label}</a>`;
       bar.innerHTML = `
         <a class="rc-brand" href="inicio.html"><img src="logo.png" alt="" onerror="this.remove()"><span>Redes Cyan<small>Ciudad Delgado</small></span></a>
-        <nav class="rc-nav" aria-label="Menú principal">${link("inicio.html", "inicio", "Inicio")}${link("index.html", "redes", "Redes")}${link("actividades.html", "actividades", "Actividades")}${RC.esAdmin ? link("usuarios.html", "usuarios", "Usuarios") : ""}</nav>
+        <nav class="rc-nav" aria-label="Menú principal">${link("inicio.html", "inicio", "Inicio")}${link("index.html", "redes", "Redes")}${link("actividades.html", "actividades", "Actividades")}${link("mapa.html", "mapa", "Mapa")}${RC.esAdmin ? link("usuarios.html", "usuarios", "Usuarios") : ""}</nav>
         <div class="rc-user"><span class="rc-mail"></span><button type="button" class="rc-out">Salir</button></div>`;
       bar.querySelector(".rc-mail").textContent = ((RC.perfil && RC.perfil.nombre) || (RC.user && RC.user.email) || "") + (RC.esAdmin ? " · Admin" : "");
       bar.querySelector(".rc-out").addEventListener("click", RC.signOut);

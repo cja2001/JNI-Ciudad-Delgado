@@ -899,7 +899,7 @@ tr.sel td{background:var(--accent-soft)}
           <legend class="eyebrow">Territorio</legend>
           <div class="fixed full"><span class="eyebrow">Distrito</span><b>Ciudad Delgado</b><span class="note">San Salvador Centro · San Salvador</span></div>
           <div class="f" data-k="zona"><label for="zona">Zona <span class="req">*</span></label><span id="zonaBox"></span><span class="msg"></span></div>
-          <div class="f" data-k="centro"><label for="centro">Centro de votación <span class="req">*</span></label><input id="centro" list="dlCentro" autocomplete="off" placeholder="Nombre del centro escolar o local"><datalist id="dlCentro"></datalist><span class="msg"></span></div>
+          <div class="f" data-k="centro"><label for="centro">Centro de votación <span class="req">*</span></label><select id="centro"><option value="">Seleccione el centro…</option></select><span class="msg"></span></div>
         </fieldset>
         <fieldset>
           <legend class="eyebrow">Eje <span class="req">*</span></legend>
@@ -994,6 +994,9 @@ const DEFAULT_DEPTO = "SAN SALVADOR";
 const FIJO = {departamento:"SAN SALVADOR", municipio:"San Salvador Centro", distrito:"Ciudad Delgado"};
 // Zonas del distrito según el mapa de zonas de Ciudad Delgado (1 a 18).
 const ZONAS = Array.from({length:18}, (_, i) => i + 1);
+// 19 centros de votación del distrito (archivo CENTROS DE VOTACION CIUDAD DELGADO.gpkg).
+const CENTROS_VOT = [{"id": 1, "nombre": "COMPLEJO EDUCATIVO DELGADO", "lat": 13.7243631, "lng": -89.1711977}, {"id": 2, "nombre": "CENTRO ESCOLAR PEDRO PABLO CASTILLO", "lat": 13.7291816, "lng": -89.1690429}, {"id": 3, "nombre": "INSTITUTO NACIONAL DE CIUDAD DELGADO", "lat": 13.7433205, "lng": -89.1695918}, {"id": 4, "nombre": "CENTRO ESCOLAR CANTON CALLE REAL", "lat": 13.7581481, "lng": -89.1667191}, {"id": 5, "nombre": "CENTRO ESCOLAR CANTON ARENAL", "lat": 13.7594994, "lng": -89.1786278}, {"id": 6, "nombre": "CENTRO ESCOLAR CASERIO SAN ANTONIO LAS VEGAS", "lat": 13.7705095, "lng": -89.1667714}, {"id": 7, "nombre": "CENTRO ESCOLAR COMUNIDAD LOS LLANITOS PABELLON 2", "lat": 13.786618, "lng": -89.1678859}, {"id": 8, "nombre": "CENTRO ESCOLAR ISAURA HERNANDEZ DE MAYORA", "lat": 13.7757919, "lng": -89.1579735}, {"id": 9, "nombre": "CENTRO ESCOLAR COMUNIDAD PRADERA III", "lat": 13.7931712, "lng": -89.1621701}, {"id": 10, "nombre": "CENTRO ESCOLAR CATOLICO SAN TARSICIO", "lat": 13.7488732, "lng": -89.1496997}, {"id": 11, "nombre": "CENTRO ESCOLAR REFUGIO SIFONTES", "lat": 13.7261213, "lng": -89.1675811}, {"id": 12, "nombre": "CENTRO ESCOLAR JUANA LOPEZ", "lat": 13.7179959, "lng": -89.1675613}, {"id": 13, "nombre": "COLEGIO MIGUEL ANGEL ASTURIAS", "lat": 13.7318737, "lng": -89.1510068}, {"id": 14, "nombre": "COMPLEJO EDUCATIVO DOCTOR ORLANDO DE SOLA", "lat": 13.7241681, "lng": -89.1512414}, {"id": 15, "nombre": "DIRECCION GENERAL DE ESTADISTICAS Y CENSOS", "lat": 13.7136388, "lng": -89.1704477}, {"id": 16, "nombre": "CENTRO ESCOLAR REINO DE HOLANDA", "lat": 13.7128874, "lng": -89.1730149}, {"id": 17, "nombre": "CASA COMUNAL COLONIA ALTOS DE SANTA MARIA, CANTON EL ARENAL", "lat": 13.7547421, "lng": -89.1894301}, {"id": 18, "nombre": "CENTRO ESCOLAR SECTOR UNIDO", "lat": 13.7566368, "lng": -89.1830588}, {"id": 19, "nombre": "CENTRO ESCOLAR EDELMIRA MOLINA", "lat": 13.7179509, "lng": -89.1698861}];
+
 const DISTRITO_CENTRO = [13.7290, -89.1700];
 // Ubica un punto dentro de las zonas (trazadas desde el mapa oficial) y de los cantones y barrios (KMZ).
 function inRing(pt, ring){
@@ -1020,6 +1023,13 @@ const COLLECTION = "redes";
 const $ = id => document.getElementById(id);
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const esc = s => String(s ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+$("centro").innerHTML = `<option value="">Seleccione el centro…</option>` + CENTROS_VOT.map(c => `<option value="${esc(c.nombre)}">${c.id}. ${esc(c.nombre)}</option>`).join("");
+// Un registro antiguo puede tener un centro escrito a mano: se agrega a la lista para no perderlo.
+function setCentro(v){
+  const s = $("centro"); v = v || "";
+  if (v && ![...s.options].some(o => o.value === v)) s.add(new Option(v + " (escrito a mano)", v));
+  s.value = v;
+}
 const ejeOf = id => EJES.find(e => e.id === id) || {id, c:"--muted"};
 const ejeLabel = id => { const e = ejeOf(id); return e.label || e.id; };
 const norm = s => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -1206,7 +1216,7 @@ function validate(r){
   else setMsg("dui","","");
   req("telefono", /^[267]\d{3}-\d{4}$/.test(r.telefono), "Use 8 dígitos que empiecen con 2, 6 o 7.");
   req("zona", /^\d+$/.test(r.zona) && (!ZONAS.length || ZONAS.includes(+r.zona)), ZONAS.length ? "Seleccione la zona." : "Escriba el número de zona.");
-  req("centro", r.centro.length >= 3, "Escriba el centro de votación.");
+  req("centro", r.centro.length >= 3, "Seleccione el centro de votación.");
   req("logo", !!r.logo, "Suba el logo de la red.");
   if (r.red.length < 3) req("red", false, "Escriba el nombre de la red.");
   else if (records.some(x => x.id !== editingId && norm(x.red) === norm(r.red))) req("red", false, "Ya existe una red con este nombre.");
@@ -1394,7 +1404,7 @@ function renderStats(){
   if (zs.includes(cur)) $("fMun").value = cur;
   const uniq = k => [...new Set(records.map(r => r[k]).filter(Boolean))].sort();
   $("dlCom").innerHTML = [...new Set(records.flatMap(r => r.comunidades || []))].sort((a,b) => a.localeCompare(b)).map(v => `<option value="${esc(v)}">`).join("");
-  $("dlCentro").innerHTML = uniq("centro").map(v => `<option value="${esc(v)}">`).join("");
+
 }
 // Solo se aceptan logos guardados como imagen incrustada; cualquier otro valor se descarta.
 const LOGO_RE = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/;
@@ -1429,7 +1439,8 @@ $("tb").addEventListener("click", async e => {
 function startEdit(r){
   editingId = r.id;
   $("fTitle").textContent = "Editar red"; $("btnSave").textContent = "Guardar cambios"; $("btnCancel").hidden = false;
-  ["nombre","dui","telefono","zona","centro","lat","lng"].forEach(k => $(k).value = r[k] ?? "");
+  ["nombre","dui","telefono","zona","lat","lng"].forEach(k => $(k).value = r[k] ?? "");
+  setCentro(r.centro);
   zonaManual = true;
   setMembers(r.integrantes);
   $("red").value = r.red || ""; $("lema").value = r.lema || "";
@@ -1466,7 +1477,7 @@ $("frm").addEventListener("submit", async e => {
     // Mantener zona y centro para registrar varias redes del mismo centro seguidas.
     const keep = {z:r.zona, c:r.centro};
     resetForm();
-    if (!wasEdit) { $("zona").value = keep.z; $("centro").value = keep.c; }
+    if (!wasEdit) { $("zona").value = keep.z; setCentro(keep.c); }
     selectedId = id; renderTable(); highlight(id, true);
     toast(wasEdit ? "Cambios guardados" : `${rec.red} guardada con ${rec.integrantes.length} integrante${rec.integrantes.length === 1 ? "" : "s"}`);
   } catch (err) { toast(errText(err)); }

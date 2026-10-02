@@ -41,7 +41,11 @@
     const fail = e => { if (e) throw e; };
     return {
       async redes() {
-        const { data, error } = await sb.from("v_redes").select("id,nombre,zona,integrantes").order("nombre");
+        const { data, error } = await sb.from("v_redes").select("id,nombre,zona,integrantes,latitud,longitud,centro_votacion,lema").order("nombre");
+        fail(error); return data || [];
+      },
+      async centros() {
+        const { data, error } = await sb.from("v_centros").select("*").order("id");
         fail(error); return data || [];
       },
       async actividades() {
@@ -118,11 +122,20 @@
     function demoRedes() {
       try {
         return JSON.parse(localStorage.getItem("redes-cyan:v1") || "[]")
-          .map(r => ({ id: r.id, nombre: r.red || r.nombre, zona: r.zona, integrantes: (r.integrantes || []).length }));
+          .map(r => ({ id: r.id, nombre: r.red || r.nombre, zona: r.zona, integrantes: (r.integrantes || []).length,
+            latitud: +r.lat, longitud: +r.lng, centro_votacion: r.centro || "", lema: r.lema || "" }));
       } catch { return []; }
     }
     return {
       async redes() { return demoRedes().sort((a, b) => String(a.nombre).localeCompare(String(b.nombre))); },
+      async centros() {
+        const redes = demoRedes(), norm = s => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toUpperCase();
+        return (window.CENTROS || []).map(c => {
+          const loc = ubicar(c.lat, c.lng), rs = redes.filter(r => norm(r.centro_votacion) === norm(c.nombre));
+          return { id: c.id, nombre: c.nombre, latitud: c.lat, longitud: c.lng, zona: loc.zona, canton: loc.canton,
+            redes: rs.length, personas: rs.reduce((s, r) => s + r.integrantes + 1, 0) };
+        });
+      },
       async actividades() { return leer().map(vista).sort((a, b) => String(b.fecha).localeCompare(String(a.fecha))); },
       async guardarActividad(a) {
         const l = leer(), now = new Date().toISOString();
