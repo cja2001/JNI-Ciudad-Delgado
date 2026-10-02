@@ -12,7 +12,7 @@ El script se puede volver a ejecutar sin perder datos: solo crea lo que falta y 
 |---|---|
 | `redes` | Una fila por red: nombre, lema, logo, centro de votación, eje, zona, cantón y ubicación. |
 | `red_comunidades` | Comunidades que abarca cada red. |
-| `personas` | Responsable (posición 0) e integrantes (1 a 20). Un DUI solo puede estar en una red. |
+| `personas` | Responsable (posición 0) e integrantes (1 a 20), con DUI, teléfono, edad y colonia de residencia. Un DUI solo puede estar en una red. |
 | `zonas`, `cantones`, `ejes` | Catálogos. Zonas y cantones traen sus límites (PostGIS). |
 | `guardar_red(p_red)` | Guarda una red completa (datos, comunidades y personas) en un solo paso. |
 | `v_redes` | Una fila por red con responsable, número de integrantes y comunidades. |
@@ -34,7 +34,8 @@ El script se puede volver a ejecutar sin perder datos: solo crea lo que falta y 
 - Nombres de personas en mayúsculas y espacios de más eliminados.
 - Cada red queda enlazada a su centro de votación (`redes.centro_id`) cuando el nombre coincide con uno de los 19.
 - Las zonas traen su punto de rótulo (`zonas.etiqueta`), en el mismo lugar que en el mapa oficial.
-- Formatos: DUI `00000000-0`, teléfono `0000-0000` empezando con 2, 6 o 7.
+- Formatos: DUI `00000000-0`, teléfono `0000-0000` empezando con 2, 6 o 7, edad entre 12 y 100 años.
+- Edad y colonia son obligatorias en el formulario. En la base quedan opcionales para que las personas registradas antes no den error; al editar esas redes el formulario pide completarlas.
 - Máximo 20 integrantes por red y al menos una comunidad.
 - `v_personas_export."DUI verificado"` indica si el dígito verificador del DUI cuadra.
 
@@ -52,8 +53,8 @@ const { data: redId, error } = await supabase.rpc('guardar_red', { p_red: {
   logo_path: 'redes/los-angeles.webp', centro_votacion: 'Centro Escolar República de Chile',
   eje: 'TECNOLOGIA', latitud: 13.7301, longitud: -89.1712,
   comunidades: ['Colonia Los Ángeles', 'Barrio Paleca'],
-  responsable: { nombre: 'Juan Pérez López', dui: '01234567-8', telefono: '7123-4567' },
-  integrantes: [{ nombre: 'María López Ramos', dui: '04567891-2', telefono: '6123-4567' }]
+  responsable: { nombre: 'Juan Pérez López', dui: '01234567-8', telefono: '7123-4567', edad: 28, colonia: 'Col. Las Brisas' },
+  integrantes: [{ nombre: 'María López Ramos', dui: '04567891-2', telefono: '6123-4567', edad: 19, colonia: 'Col. Santa Rosa' }]
 }});
 ```
 Para editar, envíe también `id` con el id de la red. Si no envía `zona`, se toma la del mapa.

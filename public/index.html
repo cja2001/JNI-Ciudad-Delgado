@@ -789,18 +789,22 @@ button:disabled{opacity:.55;cursor:default}
 .pop .plogo{width:56px;height:56px;border-radius:50%;object-fit:cover;float:left;margin:0 10px 4px 0}
 .pop i{color:var(--muted)}
 .mlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:m}
-.mrow{display:grid;grid-template-columns:2em minmax(0,1fr) minmax(0,1fr);gap:4px 6px;align-items:center;padding:6px;border-radius:6px;background:var(--sunk);border:1px solid transparent}
-.mrow .n{grid-row:span 2;font:700 .85rem var(--f-mono);color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
-.mrow .nm{grid-column:2/4}
+.mrow{display:grid;grid-template-columns:2em repeat(6,minmax(0,1fr));gap:4px 6px;align-items:center;padding:6px;border-radius:6px;background:var(--sunk);border:1px solid transparent}
+.mrow .n{grid-row:span 3;font:700 .85rem var(--f-mono);color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+.mrow .nm{grid-column:2/8}
+.mrow .dui-in{grid-column:2/5}
+.mrow .tel-in{grid-column:5/8}
+.mrow .ed-in{grid-column:2/4}
+.mrow .col-in{grid-column:4/8}
 .mrow input{background:var(--surface);padding:6px 8px;font-size:.9rem}
-.mrow .msg{grid-column:2/4;font-size:.75rem;color:var(--bad)}
+.mrow .msg{grid-column:2/8;font-size:.75rem;color:var(--bad)}
 .mrow .msg:empty{display:none}
 .mrow.filled .n{color:var(--accent)}
 .mrow.err{border-color:var(--bad);background:var(--bad-soft)}
 .count{font:600 .75rem var(--f-mono);letter-spacing:0;text-transform:none;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:1px 8px;margin-left:6px}
 .members legend{display:flex;align-items:center}
 tr.detail td{background:var(--sunk);padding:8px 10px 12px}
-.mtable{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;gap:2px 14px;font-size:.82rem}
+.mtable{display:grid;grid-template-columns:repeat(6,auto);justify-content:start;gap:2px 14px;font-size:.82rem}
 .mtable span{white-space:nowrap}
 .mtable .mono{font-family:var(--f-mono);font-size:.76rem}
 .mtable .h{font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
@@ -894,6 +898,9 @@ tr.sel td{background:var(--accent-soft)}
           <div class="f full" data-k="nombre"><label for="nombre">Nombre completo <span class="req">*</span></label><input id="nombre" autocomplete="off" placeholder="Nombres y apellidos"><span class="msg"></span></div>
           <div class="f" data-k="dui"><label for="dui">DUI <span class="req">*</span></label><input id="dui" class="mono dui-in" inputmode="numeric" placeholder="00000000-0" maxlength="10"><span class="msg"></span></div>
           <div class="f" data-k="telefono"><label for="telefono">Teléfono <span class="req">*</span></label><input id="telefono" class="mono tel-in" inputmode="tel" placeholder="7000-0000" maxlength="9"><span class="msg"></span></div>
+          <div class="f" data-k="edad"><label for="edad">Edad <span class="req">*</span></label><input id="edad" class="mono" type="number" inputmode="numeric" min="12" max="100" step="1" placeholder="Años"><span class="msg"></span></div>
+          <div class="f" data-k="colonia"><label for="colonia">Colonia <span class="req">*</span></label><input id="colonia" autocomplete="off" list="dlColonias" placeholder="Colonia de residencia" title="Colonia de residencia"><span class="msg"></span></div>
+          <datalist id="dlColonias"></datalist>
         </fieldset>
         <fieldset>
           <legend class="eyebrow">Territorio</legend>
@@ -1125,17 +1132,23 @@ $("mList").innerHTML = Array.from({length:MAX_INTEGRANTES}, (_, i) => `<li class
   <input class="nm" id="m${i}n" autocomplete="off" placeholder="Nombre completo" aria-label="Integrante ${i + 1}: nombre">
   <input class="mono dui-in" id="m${i}d" inputmode="numeric" maxlength="10" placeholder="DUI" aria-label="Integrante ${i + 1}: DUI">
   <input class="mono tel-in" id="m${i}t" inputmode="tel" maxlength="9" placeholder="Teléfono" aria-label="Integrante ${i + 1}: teléfono">
+  <input class="mono ed-in" id="m${i}e" type="number" inputmode="numeric" min="12" max="100" step="1" placeholder="Edad" aria-label="Integrante ${i + 1}: edad">
+  <input class="col-in" id="m${i}c" autocomplete="off" list="dlColonias" placeholder="Colonia" title="Colonia de residencia" aria-label="Integrante ${i + 1}: colonia de residencia">
   <span class="msg"></span></li>`).join("");
-function memberRow(i){ return {nombre:$(`m${i}n`).value.trim().replace(/\s+/g," ").toUpperCase(), dui:$(`m${i}d`).value.trim(), telefono:$(`m${i}t`).value.trim()}; }
+function memberRow(i){ return {nombre:$(`m${i}n`).value.trim().replace(/\s+/g," ").toUpperCase(), dui:$(`m${i}d`).value.trim(), telefono:$(`m${i}t`).value.trim(),
+  edad:$(`m${i}e`).value.trim(), colonia:$(`m${i}c`).value.trim().replace(/\s+/g," ")}; }
+const memberFilled = m => !!(m.nombre || m.dui || m.telefono || m.edad || m.colonia);
+const edadOk = e => /^\d{1,3}$/.test(String(e)) && +e >= 12 && +e <= 100;
 function updateMemberCount(){
   let n = 0;
-  document.querySelectorAll(".mrow").forEach((li, i) => { const m = memberRow(i); const f = !!(m.nombre || m.dui || m.telefono); li.classList.toggle("filled", f); if (f) n++; });
+  document.querySelectorAll(".mrow").forEach((li, i) => { const m = memberRow(i); const f = memberFilled(m); li.classList.toggle("filled", f); if (f) n++; });
   $("mCount").textContent = `${n} de ${MAX_INTEGRANTES}`;
 }
 function setMembers(list){
   for (let i = 0; i < MAX_INTEGRANTES; i++) {
     const m = (list || [])[i] || {};
     $(`m${i}n`).value = m.nombre || ""; $(`m${i}d`).value = m.dui || ""; $(`m${i}t`).value = m.telefono || "";
+    $(`m${i}e`).value = m.edad ?? ""; $(`m${i}c`).value = m.colonia || "";
   }
   clearMemberErrors(); updateMemberCount();
 }
@@ -1174,12 +1187,14 @@ function readForm(){
     nombre: $("nombre").value.trim().replace(/\s+/g," ").toUpperCase(),
     dui: $("dui").value.trim(),
     telefono: $("telefono").value.trim(),
+    edad: $("edad").value.trim(),
+    colonia: $("colonia").value.trim().replace(/\s+/g," "),
     ...FIJO,
     zona: $("zona").value.trim(),
     centro: $("centro").value.trim().replace(/\s+/g," "),
     eje: (document.querySelector('input[name="eje"]:checked') || {}).value || "",
     lat: $("lat").value.trim(), lng: $("lng").value.trim(),
-    integrantes: Array.from({length:MAX_INTEGRANTES}, (_, i) => memberRow(i)).filter(m => m.nombre || m.dui || m.telefono),
+    integrantes: Array.from({length:MAX_INTEGRANTES}, (_, i) => memberRow(i)).filter(memberFilled),
     canton: (() => { const la = parseFloat($("lat").value), ln = parseFloat($("lng").value); return isFinite(la) && isFinite(ln) ? (locate(la, ln).canton || "") : ""; })()
   };
 }
@@ -1194,13 +1209,15 @@ function validateMembers(r){
   const taken = takenDuis(), seen = new Map([[r.dui, "responsable"]]);
   const rows = Array.from({length:MAX_INTEGRANTES}, (_, i) => [i, memberRow(i)]);
   for (const [i, m] of rows) {
-    if (!(m.nombre || m.dui || m.telefono)) continue;
+    if (!memberFilled(m)) continue;
     let msg = "";
     if (m.nombre.length < 5) msg = "Escriba el nombre completo.";
     else if (!/^\d{8}-\d$/.test(m.dui)) msg = "DUI con formato 00000000-0.";
     else if (taken.has(m.dui)) msg = "Este DUI ya está registrado en otra red.";
     else if (seen.has(m.dui)) msg = seen.get(m.dui) === "responsable" ? "Este DUI es el del responsable." : `DUI repetido con el integrante ${seen.get(m.dui)}.`;
     else if (!/^[267]\d{3}-\d{4}$/.test(m.telefono)) msg = "Teléfono de 8 dígitos que empiece con 2, 6 o 7.";
+    else if (!edadOk(m.edad)) msg = "Edad entre 12 y 100 años.";
+    else if (m.colonia.length < 3) msg = "Escriba la colonia de residencia.";
     if (/^\d{8}-\d$/.test(m.dui) && !seen.has(m.dui)) seen.set(m.dui, i + 1);
     if (msg) { const li = document.querySelector(`.mrow[data-i="${i}"]`); li.classList.add("err"); li.querySelector(".msg").textContent = msg; ok = false; }
   }
@@ -1215,6 +1232,8 @@ function validate(r){
   else if (!duiCheckOk(r.dui)) { setMsg("dui","warn","El dígito verificador no cuadra. Revise el número."); }
   else setMsg("dui","","");
   req("telefono", /^[267]\d{3}-\d{4}$/.test(r.telefono), "Use 8 dígitos que empiecen con 2, 6 o 7.");
+  req("edad", edadOk(r.edad), "Escriba una edad entre 12 y 100 años.");
+  req("colonia", r.colonia.length >= 3, "Escriba la colonia de residencia.");
   req("zona", /^\d+$/.test(r.zona) && (!ZONAS.length || ZONAS.includes(+r.zona)), ZONAS.length ? "Seleccione la zona." : "Escriba el número de zona.");
   req("centro", r.centro.length >= 3, "Seleccione el centro de votación.");
   req("logo", !!r.logo, "Suba el logo de la red.");
@@ -1364,14 +1383,14 @@ function highlight(id, fly){
 function filtered(){
   const q = norm($("q").value), fe = $("fEje").value, fm = $("fMun").value, fc = $("fCan").value;
   return records.filter(r => (!fe || r.eje === fe) && (!fm || String(r.zona) === fm) && (!fc || r.canton === fc) &&
-    (!q || norm([r.red, r.lema, ...(r.comunidades || []), r.nombre, r.dui, r.telefono, r.canton, r.centro, ...(r.integrantes || []).flatMap(m => [m.nombre, m.dui])].join(" ")).includes(q)));
+    (!q || norm([r.red, r.lema, ...(r.comunidades || []), r.nombre, r.dui, r.telefono, r.colonia, r.canton, r.centro, ...(r.integrantes || []).flatMap(m => [m.nombre, m.dui, m.colonia])].join(" ")).includes(q)));
 }
 let openId = null;
 function detailRow(r){
   const ms = r.integrantes || [];
   const body = ms.length
-    ? `<div class="mtable"><span class="h">N°</span><span class="h">Integrante</span><span class="h">DUI</span><span class="h">Teléfono</span>${ms.map((m, i) =>
-        `<span class="mono">${i + 1}</span><span>${esc(m.nombre)}</span><span class="mono">${esc(m.dui)}</span><span class="mono">${esc(m.telefono)}</span>`).join("")}</div>`
+    ? `<div class="mtable"><span class="h">N°</span><span class="h">Integrante</span><span class="h">DUI</span><span class="h">Teléfono</span><span class="h">Edad</span><span class="h">Colonia</span>${ms.map((m, i) =>
+        `<span class="mono">${i + 1}</span><span>${esc(m.nombre)}</span><span class="mono">${esc(m.dui)}</span><span class="mono">${esc(m.telefono)}</span><span class="mono">${esc(m.edad ?? "")}</span><span>${esc(m.colonia || "")}</span>`).join("")}</div>`
     : `<span class="note">Esta red aún no tiene integrantes registrados.</span>`;
   const com = (r.comunidades || []).length ? `<div><span class="eyebrow">Comunidades que abarca</span><div class="com">${r.comunidades.map(c => `<span class="chip">${esc(c)}</span>`).join("")}</div></div>` : "";
   return `<tr class="detail" data-id="${esc(r.id)}"><td colspan="11"><div class="dgrid">${com}<div><span class="eyebrow">Integrantes</span>${body}</div></div></td></tr>`;
@@ -1381,7 +1400,7 @@ function renderTable(){
   $("empty").hidden = records.length > 0;
   $("tb").innerHTML = rows.map(r => `<tr data-id="${esc(r.id)}">
     <td><div class="redcell">${r.logo ? `<img src="${esc(r.logo)}" alt="">` : `<span class="ph"></span>`}<span><b>${esc(r.red || "Sin nombre")}</b><i>${esc(r.lema || "")}</i></span></div></td>
-    <td>${esc(r.nombre)}</td><td class="mono">${esc(r.dui)}</td><td class="mono">${esc(r.telefono)}</td>
+    <td>${esc(r.nombre)}${r.edad || r.colonia ? `<div class="note">${[r.edad ? esc(r.edad) + " años" : "", esc(r.colonia || "")].filter(Boolean).join(" · ")}</div>` : ""}</td><td class="mono">${esc(r.dui)}</td><td class="mono">${esc(r.telefono)}</td>
     <td><button type="button" class="ghost" data-act="int" aria-expanded="${openId === r.id}">${(r.integrantes || []).length} de ${MAX_INTEGRANTES} ${openId === r.id ? "▴" : "▾"}</button></td>
     <td class="mono">${esc(r.zona)}</td><td>${esc(r.canton || "—")}</td>
     <td>${esc(r.centro)}</td><td><span class="pill" style="--c:var(${ejeOf(r.eje).c})"><i></i>${esc(ejeLabel(r.eje))}</span></td>
@@ -1404,6 +1423,8 @@ function renderStats(){
   if (zs.includes(cur)) $("fMun").value = cur;
   const uniq = k => [...new Set(records.map(r => r[k]).filter(Boolean))].sort();
   $("dlCom").innerHTML = [...new Set(records.flatMap(r => r.comunidades || []))].sort((a,b) => a.localeCompare(b)).map(v => `<option value="${esc(v)}">`).join("");
+  $("dlColonias").innerHTML = [...new Set([...CANTONES_GEO.features.map(f => f.properties.nombre), ...records.flatMap(r => [r.colonia, ...(r.comunidades || []), ...(r.integrantes || []).map(m => m.colonia)])].filter(Boolean))]
+    .sort((a,b) => a.localeCompare(b)).map(v => `<option value="${esc(v)}">`).join("");
 
 }
 // Solo se aceptan logos guardados como imagen incrustada; cualquier otro valor se descarta.
@@ -1439,7 +1460,7 @@ $("tb").addEventListener("click", async e => {
 function startEdit(r){
   editingId = r.id;
   $("fTitle").textContent = "Editar red"; $("btnSave").textContent = "Guardar cambios"; $("btnCancel").hidden = false;
-  ["nombre","dui","telefono","zona","lat","lng"].forEach(k => $(k).value = r[k] ?? "");
+  ["nombre","dui","telefono","edad","colonia","zona","lat","lng"].forEach(k => $(k).value = r[k] ?? "");
   setCentro(r.centro);
   zonaManual = true;
   setMembers(r.integrantes);
@@ -1496,20 +1517,21 @@ function errText(err){
 function buildXlsx(){
   const reds = filtered().slice().sort((a,b) => (+a.zona - +b.zona) || String(a.centro).localeCompare(String(b.centro)) || String(a.nombre).localeCompare(String(b.nombre)));
   // Hoja por persona con las columnas de la plantilla original, más la red a la que pertenece.
-  const head = ["Departamento","Municipio","Distrito","Zona","Centro de votacion","Eje","Nombre","Dui","Telefono","Rol","N° de red","Nombre de la red","Responsable de la red","Canton / Barrio","Latitud","Longitud"];
+  const head = ["Departamento","Municipio","Distrito","Zona","Centro de votacion","Eje","Nombre","Dui","Telefono","Edad","Colonia de residencia","Rol","N° de red","Nombre de la red","Responsable de la red","Canton / Barrio","Latitud","Longitud"];
   const rows = [];
   reds.forEach((r, k) => {
     const base = [r.departamento, r.municipio, r.distrito, +r.zona || r.zona, r.centro, r.eje];
     const tail = [k + 1, r.red || "", r.nombre, r.canton || "", +r.lat, +r.lng];
-    rows.push([...base, r.nombre, r.dui, r.telefono, "Responsable", ...tail]);
-    (r.integrantes || []).forEach(m => rows.push([...base, m.nombre, m.dui, m.telefono, "Integrante", ...tail]));
+    const num = e => (e === "" || e == null ? "" : +e);
+    rows.push([...base, r.nombre, r.dui, r.telefono, num(r.edad), r.colonia || "", "Responsable", ...tail]);
+    (r.integrantes || []).forEach(m => rows.push([...base, m.nombre, m.dui, m.telefono, num(m.edad), m.colonia || "", "Integrante", ...tail]));
   });
   const ws = XLSX.utils.aoa_to_sheet([head, ...rows]);
-  ws["!cols"] = [14,20,14,6,34,18,34,12,11,12,9,28,34,22,11,11].map(w => ({wch:w}));
-  const sumHead = ["N° de red","Nombre de la red","Lema","Comunidades que abarca","Zona","Canton / Barrio","Centro de votacion","Eje","Responsable","Dui","Telefono","Integrantes","Latitud","Longitud","Fecha de registro"];
-  const sum = reds.map((r, k) => [k + 1, r.red || "", r.lema || "", (r.comunidades || []).join(", "), +r.zona || r.zona, r.canton || "", r.centro, r.eje, r.nombre, r.dui, r.telefono, (r.integrantes || []).length, +r.lat, +r.lng, (r.creado || "").slice(0,10)]);
+  ws["!cols"] = [14,20,14,6,34,18,34,12,11,6,26,12,9,28,34,22,11,11].map(w => ({wch:w}));
+  const sumHead = ["N° de red","Nombre de la red","Lema","Comunidades que abarca","Zona","Canton / Barrio","Centro de votacion","Eje","Responsable","Dui","Telefono","Edad","Colonia de residencia","Integrantes","Latitud","Longitud","Fecha de registro"];
+  const sum = reds.map((r, k) => [k + 1, r.red || "", r.lema || "", (r.comunidades || []).join(", "), +r.zona || r.zona, r.canton || "", r.centro, r.eje, r.nombre, r.dui, r.telefono, r.edad === "" || r.edad == null ? "" : +r.edad, r.colonia || "", (r.integrantes || []).length, +r.lat, +r.lng, (r.creado || "").slice(0,10)]);
   const ws2 = XLSX.utils.aoa_to_sheet([sumHead, ...sum]);
-  ws2["!cols"] = [9,28,40,40,6,22,34,18,34,12,11,11,11,11,12].map(w => ({wch:w}));
+  ws2["!cols"] = [9,28,40,40,6,22,34,18,34,12,11,6,26,11,11,11,12].map(w => ({wch:w}));
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Integrantes");
   XLSX.utils.book_append_sheet(wb, ws2, "Redes");
@@ -1564,16 +1586,17 @@ async function supaStore(sb){
   async function load(){
     const [r1, r2] = await Promise.all([
       sb.from("v_redes").select("*").order("creado_en", {ascending:false}),
-      sb.from("personas").select("red_id,rol,posicion,nombre,dui,telefono").eq("rol", "integrante").order("posicion")
+      sb.from("personas").select("red_id,rol,posicion,nombre,dui,telefono,edad,colonia").eq("rol", "integrante").order("posicion")
     ]);
     if (r1.error) throw r1.error; if (r2.error) throw r2.error;
     const ints = {};
-    for (const p of r2.data) (ints[p.red_id] = ints[p.red_id] || []).push({nombre:p.nombre, dui:p.dui, telefono:p.telefono});
+    for (const p of r2.data) (ints[p.red_id] = ints[p.red_id] || []).push({nombre:p.nombre, dui:p.dui, telefono:p.telefono, edad:p.edad == null ? "" : String(p.edad), colonia:p.colonia || ""});
     records = r1.data.map(r => ({
       id:r.id, red:r.nombre, lema:r.lema || "", comunidades:r.comunidades || [],
       logo: r.logo_path ? LOGO_URL + r.logo_path.split("/").map(encodeURIComponent).join("/") : "",
       logo_path:r.logo_path || "",
       nombre:r.responsable || "", dui:r.responsable_dui || "", telefono:r.responsable_telefono || "",
+      edad:r.responsable_edad == null ? "" : String(r.responsable_edad), colonia:r.responsable_colonia || "",
       departamento:r.departamento, municipio:r.municipio, distrito:r.distrito,
       zona:r.zona == null ? "" : String(r.zona), centro:r.centro_votacion || "", eje:r.eje,
       lat:+r.latitud, lng:+r.longitud, canton:r.canton || "", integrantes:ints[r.id] || [],
@@ -1599,8 +1622,8 @@ async function supaStore(sb){
       const {data, error} = await sb.rpc("guardar_red", {p_red:{
         id: id || null, nombre:rec.red, lema:rec.lema, logo_path, centro_votacion:rec.centro, eje:rec.eje,
         zona:rec.zona, latitud:rec.lat, longitud:rec.lng, comunidades:rec.comunidades,
-        responsable:{nombre:rec.nombre, dui:rec.dui, telefono:rec.telefono},
-        integrantes:rec.integrantes.map(m => ({nombre:m.nombre, dui:m.dui, telefono:m.telefono}))
+        responsable:{nombre:rec.nombre, dui:rec.dui, telefono:rec.telefono, edad:rec.edad === "" ? null : +rec.edad, colonia:rec.colonia},
+        integrantes:rec.integrantes.map(m => ({nombre:m.nombre, dui:m.dui, telefono:m.telefono, edad:m.edad === "" ? null : +m.edad, colonia:m.colonia}))
       }});
       if (error) { if (logo_path && logo_path !== (prev && prev.logo_path)) sb.storage.from(BUCKET).remove([logo_path]); throw error; }
       if (prev && prev.logo_path && prev.logo_path !== logo_path) sb.storage.from(BUCKET).remove([prev.logo_path]);

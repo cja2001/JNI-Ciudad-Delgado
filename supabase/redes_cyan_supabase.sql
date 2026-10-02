@@ -99,6 +99,12 @@ create table if not exists public.personas (
   constraint personas_dui_uk unique (dui),
   constraint personas_red_pos_uk unique (red_id, posicion)
 );
+
+-- Edad y colonia de residencia (agregadas después; opcionales en la base para no romper registros anteriores).
+alter table public.personas add column if not exists edad smallint;
+alter table public.personas add column if not exists colonia text;
+alter table public.personas drop constraint if exists personas_edad_ck;
+alter table public.personas add constraint personas_edad_ck check (edad is null or edad between 12 and 100);
 comment on table public.personas is 'Responsable (posición 0) e integrantes (posiciones 1 a 20) de cada red. Un DUI solo puede estar en una red.';
 create index if not exists personas_red_idx on public.personas (red_id);
 
@@ -162,6 +168,7 @@ set search_path = ''
 as $$
 begin
   new.nombre := upper(btrim(regexp_replace(new.nombre, '\s+', ' ', 'g')));
+  new.colonia := nullif(btrim(regexp_replace(coalesce(new.colonia, ''), '\s+', ' ', 'g')), '');
   return new;
 end;
 $$;
@@ -199,8 +206,8 @@ create trigger comunidades_antes_de_guardar
 --     logo_path: 'redes/abc.webp', centro_votacion: 'Centro Escolar ...',
 --     eje: 'TECNOLOGIA', zona: 8, latitud: 13.7301, longitud: -89.1712,
 --     comunidades: ['Colonia Los Ángeles', 'Barrio Paleca'],
---     responsable: { nombre: 'Juan Pérez', dui: '01234567-8', telefono: '7123-4567' },
---     integrantes: [ { nombre: 'María López', dui: '04567891-2', telefono: '6123-4567' } ]
+--     responsable: { nombre: 'Juan Pérez', dui: '01234567-8', telefono: '7123-4567', edad: 28, colonia: 'Col. Las Brisas' },
+--     integrantes: [ { nombre: 'María López', dui: '04567891-2', telefono: '6123-4567', edad: 22, colonia: 'Col. Santa Rosa' } ]
 --   }});
 create or replace function public.guardar_red(p_red jsonb)
 returns uuid
@@ -273,13 +280,15 @@ begin
   from jsonb_array_elements_text(v_coms) as c
   where btrim(c) <> '';
 
-  insert into public.personas (red_id, rol, posicion, nombre, dui, telefono)
-  values (v_id, 'responsable', 0, v_resp->>'nombre', v_resp->>'dui', v_resp->>'telefono');
+  insert into public.personas (red_id, rol, posicion, nombre, dui, telefono, edad, colonia)
+  values (v_id, 'responsable', 0, v_resp->>'nombre', v_resp->>'dui', v_resp->>'telefono',
+          nullif(v_resp->>'edad', '')::smallint, nullif(btrim(v_resp->>'colonia'), ''));
 
   for v_m in select value from jsonb_array_elements(v_ints) loop
     v_i := v_i + 1;
-    insert into public.personas (red_id, rol, posicion, nombre, dui, telefono)
-    values (v_id, 'integrante', v_i, v_m->>'nombre', v_m->>'dui', v_m->>'telefono');
+    insert into public.personas (red_id, rol, posicion, nombre, dui, telefono, edad, colonia)
+    values (v_id, 'integrante', v_i, v_m->>'nombre', v_m->>'dui', v_m->>'telefono',
+            nullif(v_m->>'edad', '')::smallint, nullif(btrim(v_m->>'colonia'), ''));
   end loop;
 
   return v_id;
@@ -315,14 +324,16 @@ select
   resp.nombre as responsable, resp.dui as responsable_dui, resp.telefono as responsable_telefono,
   (select count(*) from public.personas p where p.red_id = r.id and p.rol = 'integrante')::int as integrantes,
   coalesce((select array_agg(rc.nombre order by rc.id) from public.red_comunidades rc where rc.red_id = r.id), '{}') as comunidades,
-  r.creado_en, r.actualizado_en
+  r.creado_en, r.actualizado_en,
+  resp.edad as responsable_edad, resp.colonia as responsable_colonia
 from public.redes r
 join public.ejes e on e.id = r.eje_id
 left join public.cantones c on c.id = r.canton_id
 left join public.personas resp on resp.red_id = r.id and resp.rol = 'responsable';
 
 -- Una fila por persona con las columnas de la plantilla original (para Excel).
-create or replace view public.v_personas_export
+drop view if exists public.v_personas_export;
+create view public.v_personas_export
 with (security_invoker = true) as
 select
   r.departamento   as "Departamento",
@@ -334,6 +345,8 @@ select
   p.nombre         as "Nombre",
   p.dui            as "Dui",
   p.telefono       as "Telefono",
+  p.edad           as "Edad",
+  p.colonia        as "Colonia de residencia",
   initcap(p.rol)   as "Rol",
   r.nombre         as "Nombre de la red",
   c.nombre         as "Canton / Barrio",
