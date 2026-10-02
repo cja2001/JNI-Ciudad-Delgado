@@ -90,7 +90,7 @@ textarea{min-height:76px;resize:vertical}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
 .clabel{color:#fde047;font-weight:700;font-size:.7rem;text-shadow:0 0 3px #000,0 0 3px #000;white-space:nowrap}
 .zlabel{color:#fff;font:800 .8rem "Bricolage Grotesque",system-ui,sans-serif;text-shadow:0 0 4px #000,0 0 4px #000;text-align:center}
-@media (max-width:820px){
+@media (max-width:820px),(max-height:500px){
   body{display:block}
   .app{display:flex;flex-direction:column}
   #map{height:46vh;order:-1}
@@ -98,6 +98,7 @@ textarea{min-height:76px;resize:vertical}
   .ph{position:static}
   .legend{display:none}
 }
+@media (max-height:500px){#map{height:75vh}}
 </style>
 </head>
 <body>

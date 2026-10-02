@@ -36,7 +36,7 @@ select{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:7px 
 .ley{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;font-size:.74rem}
 .ley i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:0}
 button:focus-visible,select:focus-visible,.capa:has(input:focus-visible){outline:3px solid var(--cyan);outline-offset:2px}
-@media (max-width:700px){
+@media (max-width:700px),(max-height:500px){
   .panel{top:auto;bottom:0;left:0;right:0;width:auto;max-height:55%;border-radius:16px 16px 0 0}
   .panel.cerrado{display:none}
   .btn-panel{display:block}
@@ -84,7 +84,7 @@ button:focus-visible,select:focus-visible,.capa:has(input:focus-visible){outline
 const $ = id => document.getElementById(id);
 const esc = MAPAOL.esc;
 const { Style, Fill, Stroke, Circle: CircleStyle } = ol.style;
-const M = MAPAOL.crear({ target: "map", padding: () => innerWidth > 700 ? [30, 30, 30, 340] : [20, 20, 20, 20] });
+const M = MAPAOL.crear({ target: "map", padding: () => innerWidth > 700 && innerHeight > 500 ? [30, 30, 30, 340] : [20, 20, 20, 20] });
 const { map, zonas, cantones, rotulos, centros, distrito } = M;
 const punto = M.punto;
 
@@ -112,7 +112,7 @@ $("irZona").insertAdjacentHTML("beforeend", MAPA.ZONAS.features.map(f => f.prope
 $("irZona").addEventListener("change", e => M.zona(+e.target.value));
 $("ley").innerHTML = DATOS.TIPOS.map(t => `<span><i style="background:${t.color}"></i>${esc(t.nombre.replace("Reparación de estructuras de parques", "Reparación de parques"))}</span>`).join("");
 $("btnPanel").addEventListener("click", () => $("panel").classList.toggle("cerrado"));
-if (innerWidth <= 700) $("panel").classList.add("cerrado");
+if (innerWidth <= 700 || innerHeight <= 500) $("panel").classList.add("cerrado");
 
 /* ---------- Ventana de información ---------- */
 const abrirPopup = M.abrir;

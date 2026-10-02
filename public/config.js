@@ -63,7 +63,15 @@ const SUPABASE_KEY = String(ENV.SUPABASE_ANON_KEY || "").trim();   // clave "ano
       bar.innerHTML = `
         <a class="rc-brand" href="inicio.html"><img src="logo.png" alt="" onerror="this.remove()"><span>Redes Cyan<small>Ciudad Delgado</small></span></a>
         <nav class="rc-nav" aria-label="Menú principal">${link("inicio.html", "inicio", "Inicio")}${link("index.html", "redes", "Redes")}${link("actividades.html", "actividades", "Actividades")}${link("mapa.html", "mapa", "Mapa")}${RC.esAdmin ? link("usuarios.html", "usuarios", "Usuarios") : ""}</nav>
+        <button type="button" class="rc-menu" aria-expanded="false" aria-controls="rcMenu" aria-label="Abrir menú"><i></i><i></i><i></i></button>
         <div class="rc-user"><span class="rc-mail"></span><button type="button" class="rc-out">Salir</button></div>`;
+      const nav = bar.querySelector(".rc-nav"), mb = bar.querySelector(".rc-menu");
+      nav.id = "rcMenu";
+      mb.addEventListener("click", () => {
+        const open = !bar.classList.contains("abierto");
+        bar.classList.toggle("abierto", open); mb.setAttribute("aria-expanded", String(open));
+        mb.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
+      });
       bar.querySelector(".rc-mail").textContent = ((RC.perfil && RC.perfil.nombre) || (RC.user && RC.user.email) || "") + (RC.esAdmin ? " · Admin" : "");
       bar.querySelector(".rc-out").addEventListener("click", RC.signOut);
       document.body.prepend(bar);
@@ -100,7 +108,33 @@ const SUPABASE_KEY = String(ENV.SUPABASE_ANON_KEY || "").trim();   // clave "ano
   .rc-bar a:focus-visible,.rc-out:focus-visible{outline:3px solid #c8f560;outline-offset:2px}
   .rc-demo{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between;background:#fff7db;color:#6b4e00;border-bottom:1px solid #e0b400;padding:8px 16px;font:500 .82rem "Plus Jakarta Sans",system-ui,sans-serif}
   .rc-demo select{width:auto;font:600 .8rem "Plus Jakarta Sans",system-ui,sans-serif;margin-left:6px;padding:3px 6px;border-radius:8px;border:1px solid #e0b400;background:#fff;color:#6b4e00}
-  @media (max-width:600px){.rc-mail{display:none}.rc-nav{order:3;flex-basis:100%}}`;
+  .rc-menu{display:none;margin-left:auto;width:44px;height:44px;border:1px solid rgba(255,255,255,.45);border-radius:12px;background:rgba(7,31,46,.2);cursor:pointer;
+    flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0}
+  .rc-menu i{display:block;width:20px;height:2.5px;border-radius:2px;background:#fff;transition:transform .2s,opacity .2s}
+  .rc-bar.abierto .rc-menu i:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+  .rc-bar.abierto .rc-menu i:nth-child(2){opacity:0}
+  .rc-bar.abierto .rc-menu i:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+  .rc-menu:focus-visible{outline:3px solid #fff;outline-offset:2px}
+  /* Teléfonos y tablets en vertical: menú plegable para no ocupar media pantalla. */
+  @media (max-width:900px){
+    .rc-bar{padding:8px 12px;gap:8px}
+    .rc-menu{display:flex;order:2}
+    .rc-brand{order:1}.rc-nav{order:3}.rc-user{order:4}
+    .rc-nav,.rc-user{display:none;flex-basis:100%}
+    .rc-bar.abierto .rc-nav{display:flex;flex-direction:column;gap:2px;padding-top:6px}
+    .rc-bar.abierto .rc-user{display:flex;justify-content:space-between;padding:8px 2px 4px;border-top:1px solid rgba(255,255,255,.3)}
+    .rc-nav a{font-size:1rem;padding:11px 14px;border-radius:12px}
+    .rc-mail{max-width:none}
+    .rc-out{padding:9px 16px}
+    .rc-demo{padding:6px 12px;font-size:.74rem}
+  }
+  /* Pantallas táctiles: letra de 16 px en los campos (evita que el teléfono haga zoom) y botones fáciles de tocar. */
+  @media (pointer:coarse){
+    input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),select,textarea{font-size:16px!important}
+    button,select,button.btn.sm{min-height:40px}
+    .ol-zoom button,.leaflet-bar a{min-width:40px;min-height:40px;line-height:40px!important}
+  }
+  @media (prefers-reduced-motion:reduce){.rc-menu i{transition:none}}`;
   const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
 
   window.RC = RC;
