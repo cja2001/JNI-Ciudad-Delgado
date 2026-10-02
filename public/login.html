@@ -7,11 +7,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap">
 <style>
-/* Diseño: panel de marca en cian a la izquierda (arriba en teléfono) y tarjeta de acceso a la derecha. Un solo tema, a propósito. */
+/* Diseño: solo los colores de la bandera de Nuevas Ideas, cian y blanco.
+   Panel cian a la izquierda (arriba en teléfono) con la "N" de la bandera, y acceso sobre blanco a la derecha.
+   Para textos pequeños sobre blanco se usa un tono más profundo del mismo cian, para que se lean bien. */
 :root{
-  --cyan:#00adef; --cyan-deep:#0084b8; --cyan-ink:#003a52; --cyan-soft:#e3f7fd;
-  --navy:#071f2e; --ink:#0d2633; --muted:#5a7684; --line:#cfe3ea; --paper:#ffffff; --ground:#f2f9fb;
-  --lime:#c8f560; --bad:#c62839; --bad-soft:#fde8ea; --ok:#11805a; --ok-soft:#e2f6ee;
+  --cyan:#00adef;        /* cian de la bandera */
+  --cyan-2:#0090c8;      /* cian para botones y bordes activos */
+  --cyan-3:#006d99;      /* cian profundo para texto sobre blanco */
+  --cyan-4:#004e6e;      /* cian más profundo para títulos */
+  --cyan-50:#f0faff; --cyan-100:#d9f3fd; --cyan-200:#b3e6fa;
+  --white:#ffffff;
   --f-display:"Bricolage Grotesque","Arial Black",system-ui,sans-serif;
   --f-body:"Plus Jakarta Sans","Segoe UI",system-ui,sans-serif;
   color-scheme:light;
@@ -19,59 +24,65 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%}
-body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.5 var(--f-body)}
-.shell{min-height:100%;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
+body{margin:0;background:var(--white);color:var(--cyan-4);font:15px/1.5 var(--f-body)}
+.shell{min-height:100%;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
 @media (max-width:860px){.shell{grid-template-columns:minmax(0,1fr)}}
 
-/* Panel de marca */
-.brand{position:relative;overflow:hidden;color:#fff;background:linear-gradient(155deg,var(--cyan) 0%,var(--cyan-deep) 55%,var(--cyan-ink) 100%);
+/* Panel de marca: la bandera */
+.brand{position:relative;overflow:hidden;color:var(--white);background:var(--cyan);
   padding:clamp(24px,5vw,56px);display:flex;flex-direction:column;justify-content:space-between;gap:32px;isolation:isolate}
-.brand::before{content:"";position:absolute;inset:-20% -30% auto auto;width:70%;aspect-ratio:1;border-radius:50%;
-  background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.28),rgba(255,255,255,0) 60%);z-index:-1}
-.stripes{position:absolute;right:-60px;bottom:-40px;width:340px;height:340px;z-index:-1;opacity:.22;
-  background:repeating-linear-gradient(-35deg,#fff 0 14px,transparent 14px 34px);border-radius:48px;transform:rotate(8deg)}
+.flagN{position:absolute;z-index:-1;right:-6%;bottom:-8%;height:92%;width:auto;opacity:.16;pointer-events:none}
 .logo-row{display:flex;align-items:center;gap:14px}
-.logo{height:52px;width:auto;aspect-ratio:3/2;object-fit:cover;border-radius:6px;box-shadow:0 0 0 2px #fff,0 6px 16px rgba(0,30,45,.35)}
+.logo{height:52px;width:auto;aspect-ratio:3/2;object-fit:cover;border-radius:6px;box-shadow:0 0 0 3px var(--white)}
 .wordmark{font:800 1.35rem/1 var(--f-display);letter-spacing:-.01em;text-transform:uppercase}
-.wordmark small{display:block;font:700 .7rem var(--f-body);letter-spacing:.18em;opacity:.85;margin-top:4px}
-.pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);
-  padding:6px 12px;border-radius:999px;font-weight:700;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
-.pill i{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 4px rgba(200,245,96,.25)}
-.hero h1{font:800 clamp(2.2rem,5.4vw,4.4rem)/.95 var(--f-display);letter-spacing:-.03em;margin:18px 0 16px;text-wrap:balance}
-.hero h1 em{font-style:normal;color:var(--navy);background:var(--lime);padding:0 .14em;border-radius:.14em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
-.hero p{max-width:34ch;font-size:1.05rem;opacity:.95;margin:0}
+.wordmark small{display:block;font:700 .72rem var(--f-body);letter-spacing:.2em;margin-top:5px}
+.pill{display:inline-flex;align-items:center;gap:8px;background:var(--white);color:var(--cyan-3);
+  padding:7px 14px;border-radius:999px;font-weight:800;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--cyan)}
+.hero h1{font:800 clamp(2.3rem,5.6vw,4.6rem)/.95 var(--f-display);letter-spacing:-.03em;margin:20px 0 18px;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--cyan);background:var(--white);padding:0 .16em;border-radius:.14em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.hero p{max-width:34ch;font-size:1.08rem;font-weight:500;margin:0}
 .facts{display:flex;flex-wrap:wrap;gap:10px}
-.fact{background:rgba(7,31,46,.28);border-radius:14px;padding:10px 14px;min-width:110px}
-.fact b{display:block;font:800 1.5rem/1 var(--f-display)}
-.fact span{font-size:.75rem;opacity:.9;text-transform:uppercase;letter-spacing:.08em}
-@media (max-width:860px){.brand{gap:20px}.hero h1{margin:14px 0 10px}.facts{display:none}}
+.fact{border:2px solid var(--white);border-radius:14px;padding:10px 14px;min-width:112px}
+.fact b{display:block;font:800 1.6rem/1 var(--f-display)}
+.fact span{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+@media (max-width:860px){.brand{gap:20px}.hero h1{margin:14px 0 10px}.facts{display:none}.flagN{height:120%;bottom:-30%}}
 
-/* Tarjeta de acceso */
-.side{display:grid;place-items:center;padding:clamp(20px,5vw,56px) 16px}
-.card{width:100%;max-width:420px;background:var(--paper);border-radius:24px;padding:clamp(22px,4vw,36px);
-  box-shadow:0 1px 0 var(--line),0 24px 60px -24px rgba(0,58,82,.28);display:flex;flex-direction:column;gap:20px}
-.card h2{font:800 1.7rem/1.1 var(--f-display);margin:0;letter-spacing:-.02em}
-.card .lead{margin:6px 0 0;color:var(--muted)}
+/* Acceso sobre blanco */
+.side{position:relative;display:grid;place-items:center;padding:clamp(24px,5vw,56px) 16px;background:var(--white)}
+.side::before{content:"";position:absolute;left:0;top:0;bottom:0;width:10px;background:var(--cyan)}
+@media (max-width:860px){.side::before{right:0;bottom:auto;width:auto;height:10px;background:var(--white)}}
+.card{width:100%;max-width:410px;display:flex;flex-direction:column;gap:22px}
+.card h2{font:800 1.9rem/1.05 var(--f-display);margin:0;letter-spacing:-.02em;color:var(--cyan-4)}
+.card h2::after{content:"";display:block;width:48px;height:5px;border-radius:3px;background:var(--cyan);margin-top:12px}
+.card .lead{margin:10px 0 0;color:var(--cyan-3)}
 form{display:flex;flex-direction:column;gap:14px}
 .f{display:flex;flex-direction:column;gap:6px}
-label{font-weight:700;font-size:.85rem}
+label{font-weight:700;font-size:.85rem;color:var(--cyan-4)}
 .inp{position:relative}
-input{font:inherit;color:var(--ink);width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--ground);transition:border-color .15s,background .15s}
-input:focus{outline:none;border-color:var(--cyan);background:#fff;box-shadow:0 0 0 4px var(--cyan-soft)}
+input{font:inherit;color:var(--cyan-4);width:100%;padding:13px 14px;border-radius:12px;border:2px solid var(--cyan-200);background:var(--white);transition:border-color .15s,box-shadow .15s}
+input::placeholder{color:#6fb9d6}
+input:hover{border-color:var(--cyan)}
+input:focus{outline:none;border-color:var(--cyan-2);box-shadow:0 0 0 4px var(--cyan-100)}
 .inp input{padding-right:84px}
-.peek{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--cyan-deep);font:700 .8rem var(--f-body);padding:6px 8px;border-radius:8px;cursor:pointer}
+.peek{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:var(--cyan-50);color:var(--cyan-3);font:700 .8rem var(--f-body);padding:6px 10px;border-radius:8px;cursor:pointer}
 .row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:.85rem}
-.link{border:0;background:none;color:var(--cyan-deep);font:700 .85rem var(--f-body);cursor:pointer;padding:4px 0;text-decoration:underline;text-underline-offset:3px}
-.btn{font:800 1rem var(--f-display);letter-spacing:.01em;border:0;border-radius:14px;padding:15px 18px;cursor:pointer;color:#fff;
-  background:linear-gradient(90deg,var(--cyan) 0%,var(--cyan-deep) 100%);box-shadow:0 10px 24px -12px rgba(0,132,184,.9);transition:transform .12s,box-shadow .12s}
-.btn:hover{transform:translateY(-1px);box-shadow:0 14px 28px -12px rgba(0,132,184,.95)}
+.link{border:0;background:none;color:var(--cyan-3);font:700 .85rem var(--f-body);cursor:pointer;padding:4px 0;text-decoration:underline;text-decoration-color:var(--cyan);text-underline-offset:3px}
+.btn{font:800 1.02rem var(--f-display);letter-spacing:.01em;border:0;border-radius:14px;padding:15px 18px;cursor:pointer;color:var(--white);
+  background:var(--cyan-2);transition:background .12s,transform .12s}
+.btn:hover{background:var(--cyan-3);transform:translateY(-1px)}
 .btn:disabled{opacity:.6;cursor:default;transform:none}
-.btn:focus-visible,.link:focus-visible,.peek:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
-.note{font-size:.8rem;color:var(--muted);text-align:center;margin:0}
-.alert{border-radius:12px;padding:10px 12px;font-size:.88rem}
-.alert.bad{background:var(--bad-soft);color:var(--bad)}
-.alert.ok{background:var(--ok-soft);color:var(--ok)}
-.alert.cfg{background:#fff7db;color:#6b4e00;border:1px dashed #e0b400}
+.btn:focus-visible,.link:focus-visible,.peek:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+.note{font-size:.8rem;color:var(--cyan-3);text-align:center;margin:0;padding-top:16px;border-top:2px dashed var(--cyan-100)}
+.alert{border-radius:12px;padding:10px 12px 10px 40px;font-size:.88rem;font-weight:500;position:relative;color:var(--cyan-4)}
+.alert::before{position:absolute;left:12px;top:9px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font:800 .75rem/1 var(--f-body)}
+.alert.bad{background:var(--white);border:2px solid var(--cyan-2)}
+.alert.bad::before{content:"!";background:var(--cyan-2);color:var(--white)}
+.alert.ok{background:var(--cyan-100);border:2px solid var(--cyan-100)}
+.alert.ok::before{content:"✓";background:var(--white);color:var(--cyan-2)}
+.alert.cfg{background:var(--cyan-50);border:2px dashed var(--cyan-200)}
+.alert.cfg::before{content:"i";background:var(--cyan);color:var(--white)}
+.alert a{color:var(--cyan-3);font-weight:700}
 .alert code{font-size:.8rem}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -79,7 +90,7 @@ input:focus{outline:none;border-color:var(--cyan);background:#fff;box-shadow:0 0
 <body>
 <main class="shell">
   <section class="brand" aria-label="Juventud Nuevas Ideas">
-    <div class="stripes" aria-hidden="true"></div>
+    <svg class="flagN" viewBox="0 0 270 300" aria-hidden="true"><path fill="#fff" d="M0 0h66l138 192V0h66v300h-62L66 105v195H0z"/></svg>
     <div class="logo-row">
       <!-- La bandera va como logo.png junto a este archivo. -->
       <img class="logo" id="logo" src="logo.png" alt="Bandera de Nuevas Ideas" onerror="this.hidden=true">
@@ -92,7 +103,7 @@ input:focus{outline:none;border-color:var(--cyan);background:#fff;box-shadow:0 0
     </div>
     <div class="facts" aria-label="Datos del distrito">
       <div class="fact"><b>18</b><span>Zonas</span></div>
-      <div class="fact"><b>11</b><span>Cantones y barrios</span></div>
+      <div class="fact"><b>19</b><span>Centros de votación</span></div>
       <div class="fact"><b>20</b><span>Integrantes por red</span></div>
     </div>
   </section>
