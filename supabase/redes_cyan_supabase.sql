@@ -21,6 +21,16 @@
 create extension if not exists postgis with schema extensions;
 create extension if not exists pgcrypto with schema extensions;
 
+-- Permisos del esquema public. Supabase los trae de fábrica, pero se pierden si el
+-- esquema se borró y se volvió a crear (drop schema public cascade). Repetirlos no daña nada.
+grant usage on schema public to anon, authenticated, service_role;
+grant all on all tables in schema public to service_role;
+grant all on all sequences in schema public to service_role;
+grant all on all functions in schema public to service_role;
+alter default privileges in schema public grant all on tables to service_role;
+alter default privileges in schema public grant all on sequences to service_role;
+alter default privileges in schema public grant all on functions to service_role;
+
 -- 2. CATÁLOGOS -----------------------------------------------------------------
 create table if not exists public.ejes (
   id      smallint primary key,
