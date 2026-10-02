@@ -728,8 +728,7 @@ grant all on public.perfiles to service_role;
 
 -- =============================================================================
 -- 11. CENTROS DE VOTACIÓN
--- Los 19 centros del distrito con su ubicación. Los datos del jefe de centro
--- (nombre, DUI, teléfono) van en otra tabla que solo ven los administradores.
+-- Los 19 centros del distrito: nombre y coordenadas.
 -- =============================================================================
 create table if not exists public.centros_votacion (
   id          smallint primary key,
@@ -737,23 +736,18 @@ create table if not exists public.centros_votacion (
   latitud     double precision not null check (latitud between -90 and 90),
   longitud    double precision not null check (longitud between -180 and 180),
   ubicacion   extensions.geometry(Point, 4326)
-              generated always as (extensions.st_setsrid(extensions.st_makepoint(longitud, latitud), 4326)) stored,
-  zona        smallint references public.zonas (numero),
-  canton_id   smallint references public.cantones (id)
+              generated always as (extensions.st_setsrid(extensions.st_makepoint(longitud, latitud), 4326)) stored
 );
-comment on table public.centros_votacion is 'Centros de votación de Ciudad Delgado.';
+comment on table public.centros_votacion is 'Centros de votación de Ciudad Delgado: nombre y coordenadas.';
 create unique index if not exists centros_votacion_nombre_uidx on public.centros_votacion (upper(nombre));
 create index if not exists centros_votacion_ubicacion_gix on public.centros_votacion using gist (ubicacion);
 
-create table if not exists public.centros_votacion_jefes (
-  centro_id  smallint not null references public.centros_votacion (id) on delete cascade,
-  cargo      text not null default 'JEFE DE CENTRO PROPIETARIO',
-  nombre     text not null,
-  dui        text,
-  telefono   text,
-  primary key (centro_id, cargo)
-);
-comment on table public.centros_votacion_jefes is 'Jefes de centro. Datos personales: solo administradores.';
+-- Versiones anteriores de este script guardaban más datos de cada centro; ya no se usan.
+drop table if exists public.centros_votacion_jefes;
+drop trigger if exists centros_antes_de_guardar on public.centros_votacion;
+drop function if exists public.centros_antes_de_guardar();
+drop view if exists public.v_centros;
+alter table public.centros_votacion drop column if exists zona, drop column if exists canton_id;
 
 -- Texto comparable: mayúsculas, sin tildes y sin espacios de más.
 create or replace function public.normalizar_texto(t text)
@@ -764,26 +758,6 @@ set search_path = ''
 as $$
   select upper(translate(btrim(regexp_replace(coalesce(t, ''), '\s+', ' ', 'g')), 'áéíóúÁÉÍÓÚñÑüÜ', 'aeiouAEIOUnNuU'));
 $$;
-
--- Zona y cantón del centro según su ubicación.
-create or replace function public.centros_antes_de_guardar()
-returns trigger
-language plpgsql
-set search_path = ''
-as $$
-declare
-  v_punto extensions.geometry := extensions.st_setsrid(extensions.st_makepoint(new.longitud, new.latitud), 4326);
-begin
-  new.nombre := btrim(regexp_replace(new.nombre, '\s+', ' ', 'g'));
-  select z.numero into new.zona from public.zonas z where extensions.st_intersects(z.geom, v_punto) order by z.numero limit 1;
-  select c.id into new.canton_id from public.cantones c where extensions.st_intersects(c.geom, v_punto) order by c.id limit 1;
-  return new;
-end;
-$$;
-drop trigger if exists centros_antes_de_guardar on public.centros_votacion;
-create trigger centros_antes_de_guardar
-  before insert or update on public.centros_votacion
-  for each row execute function public.centros_antes_de_guardar();
 
 -- Cada red queda enlazada al centro de votación que escribió (si coincide con uno de la lista).
 alter table public.redes add column if not exists centro_id smallint references public.centros_votacion (id) on delete set null;
@@ -806,26 +780,22 @@ create trigger redes_enlazar_centro
   before insert or update of centro_votacion on public.redes
   for each row execute function public.redes_enlazar_centro();
 
--- Centros con sus totales, para la lista y el mapa.
+-- Centros con su zona y cantón (calculados por ubicación) y sus totales, para la lista y el mapa.
 create or replace view public.v_centros
 with (security_invoker = true) as
-select c.id, c.nombre, c.latitud, c.longitud, c.zona, ca.nombre as canton,
+select c.id, c.nombre, c.latitud, c.longitud,
+  (select z.numero from public.zonas z where extensions.st_intersects(z.geom, c.ubicacion) order by z.numero limit 1) as zona,
+  (select ca.nombre from public.cantones ca where extensions.st_intersects(ca.geom, c.ubicacion) order by ca.id limit 1) as canton,
   (select count(*) from public.redes r where r.centro_id = c.id)::int as redes,
   (select count(*) from public.personas p join public.redes r on r.id = p.red_id where r.centro_id = c.id)::int as personas
-from public.centros_votacion c
-left join public.cantones ca on ca.id = c.canton_id;
+from public.centros_votacion c;
 
 alter table public.centros_votacion enable row level security;
-alter table public.centros_votacion_jefes enable row level security;
 drop policy if exists "leer centros" on public.centros_votacion;
 create policy "leer centros" on public.centros_votacion for select to authenticated using (true);
-drop policy if exists "jefes: solo administradores" on public.centros_votacion_jefes;
-create policy "jefes: solo administradores" on public.centros_votacion_jefes
-  for select to authenticated using ((select public.es_admin()));
 
-revoke all on public.centros_votacion, public.centros_votacion_jefes, public.v_centros from anon;
+revoke all on public.centros_votacion, public.v_centros from anon;
 grant select on public.centros_votacion, public.v_centros to authenticated;
-grant select on public.centros_votacion_jefes to authenticated;
 
 -- 19 centros de votación de Ciudad Delgado (archivo CENTROS DE VOTACION CIUDAD DELGADO.gpkg)
 insert into public.centros_votacion (id, nombre, latitud, longitud) values

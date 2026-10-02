@@ -3,8 +3,7 @@
 ## Cómo crearla
 1. Entre a su proyecto en supabase.com y abra **SQL Editor > New query**.
 2. Pegue todo el contenido de `redes_cyan_supabase.sql` y presione **Run**.
-3. Revise en **Table Editor** que existan las tablas `redes`, `personas`, `red_comunidades`, `zonas` (18), `cantones` (11), `ejes` (5), `actividades`, `actividad_documentos`, `tipos_actividad` (6), `perfiles`, `centros_votacion` (19) y `centros_votacion_jefes`.
-4. Si quiere cargar los jefes de centro, ejecute también `privado/jefes_centros.sql`. Ese archivo tiene nombres, DUI y teléfonos, por eso no está en GitHub.
+3. Revise en **Table Editor** que existan las tablas `redes`, `personas`, `red_comunidades`, `zonas` (18), `cantones` (11), `ejes` (5), `actividades`, `actividad_documentos`, `tipos_actividad` (6), `perfiles` y `centros_votacion` (19).
 
 El script se puede volver a ejecutar sin perder datos: solo crea lo que falta y actualiza los catálogos y los límites de zonas y cantones.
 
@@ -25,9 +24,8 @@ El script se puede volver a ejecutar sin perder datos: solo crea lo que falta y 
 | `actividades` | Una fila por actividad: tipo, título, fecha, hora, estado, red que la organiza, lugar, participantes, beneficiarios y ubicación. |
 | `actividad_documentos` | Fotos, actas, listas de asistencia e informes de cada actividad. |
 | `v_actividades`, `v_resumen_actividades` | Lista de actividades con su zona y cantón, y totales por tipo. |
-| `centros_votacion` | Los 19 centros de votación con su ubicación; la zona y el cantón se calculan solos. |
-| `centros_votacion_jefes` | Jefe de cada centro (nombre, DUI, teléfono). Solo la ven los administradores. |
-| `v_centros` | Centros con el número de redes y personas de cada uno. |
+| `centros_votacion` | Los 19 centros de votación: nombre y coordenadas. |
+| `v_centros` | Centros con su zona y cantón (según la ubicación) y el número de redes y personas de cada uno. |
 | `perfiles` | Nombre, rol (`admin` o `usuario`) y estado de cada cuenta. Se crea solo al crear la cuenta. |
 | Bucket `documentos-actividades` | Privado. Fotos, PDF, Word y Excel hasta 20 MB. Se ven con enlaces temporales. |
 

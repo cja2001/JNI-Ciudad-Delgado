@@ -9,6 +9,5 @@ node_modules/
 .vercel/
 .DS_Store
 supabase/.temp/
-# Datos personales (jefes de centro, etc.)
-supabase/privado/
+# Archivos de origen con datos personales
 *.gpkg
