@@ -1,0 +1,28 @@
+/* Estilos del mapa compartido (Mapa y Redes). */
+.ol-pop{position:relative;background:#fff;color:#071f2e;border-radius:12px;box-shadow:0 8px 24px rgba(7,31,46,.25);padding:10px 28px 10px 12px;min-width:200px;max-width:280px;font:400 .82rem/1.45 "Plus Jakarta Sans","Segoe UI",system-ui,sans-serif}
+.ol-pop::after{content:"";position:absolute;left:50%;bottom:-7px;margin-left:-7px;border:7px solid transparent;border-bottom:0;border-top-color:#fff}
+.ol-pop b{display:block;font-size:.9rem;line-height:1.25;margin-bottom:3px}
+.ol-pop i{display:block;color:#4b6474}
+.ol-pop .m{color:#4b6474}
+.ol-pop a{color:#0084b8;font-weight:700}
+.ol-pop img.plogo{width:44px;height:44px;border-radius:50%;object-fit:cover;float:right;margin:0 0 4px 8px;border:2px solid #e7f6fd}
+.ol-pop .x{position:absolute;top:4px;right:6px;border:0;background:none;font-size:1rem;cursor:pointer;color:#4b6474}
+.ol-zoom{top:auto;left:auto;right:12px;bottom:36px}
+.ol-zoom button{background:#fff!important;color:#071f2e!important;width:32px!important;height:32px!important;border-radius:8px!important;margin:2px!important;box-shadow:0 2px 8px rgba(7,31,46,.2)}
+.ol-attribution{font-size:.68rem}
+
+/* Control compacto de capas y fondo (Redes). */
+.mc{position:absolute;z-index:5;top:10px;right:10px;font:400 .8rem/1.4 "Plus Jakarta Sans","Segoe UI",system-ui,sans-serif;color:#071f2e}
+.mc-btn{border:0;border-radius:999px;background:#fff;box-shadow:0 4px 14px rgba(7,31,46,.2);padding:7px 13px;font:700 .8rem "Plus Jakarta Sans",system-ui,sans-serif;color:#071f2e;cursor:pointer}
+.mc-box{margin-top:6px;width:220px;background:rgba(255,255,255,.97);border:1px solid #d5e8f2;border-radius:14px;box-shadow:0 8px 28px rgba(7,31,46,.16);padding:10px}
+.mc-sec{font-size:.64rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4b6474;margin:8px 0 4px}
+.mc-sec:first-child{margin-top:0}
+.mc label{display:flex;align-items:center;gap:8px;padding:4px;border-radius:8px;cursor:pointer;font-weight:500}
+.mc label:hover{background:#f1f8fc}
+.mc label input{width:15px;height:15px;margin:0;accent-color:#0084b8}
+.mc .sw{width:12px;height:12px;border-radius:3px;flex:none}
+.mc-bases{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.mc-bases button{border:1.5px solid #d5e8f2;background:#fff;border-radius:9px;padding:5px;font:700 .74rem "Plus Jakarta Sans",system-ui,sans-serif;color:#071f2e;cursor:pointer}
+.mc-bases button.on{border-color:#00adef;background:#e7f6fd;color:#0084b8}
+.mc select{width:100%;border:1.5px solid #d5e8f2;border-radius:9px;padding:5px 7px;background:#fff;font:inherit;color:inherit}
+.mc button:focus-visible,.mc select:focus-visible,.mc label:has(input:focus-visible){outline:3px solid #00adef;outline-offset:2px}
