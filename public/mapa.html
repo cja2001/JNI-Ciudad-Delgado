@@ -57,7 +57,7 @@ button:focus-visible,select:focus-visible,.capa:has(input:focus-visible){outline
     <div class="sec">Capas</div>
     <label class="capa"><input type="checkbox" data-capa="zonas" checked><span class="sw" style="background:#7fd8f5;border:2px solid #0aa5d6"></span>Zonas<span class="n">18</span></label>
     <label class="capa"><input type="checkbox" data-capa="cantones"><span class="sw" style="border:2px dashed #c2410c"></span>Cantones y barrios<span class="n">11</span></label>
-    <label class="capa"><input type="checkbox" data-capa="centros" checked><span class="sw" style="background:#071f2e;border-radius:50%"></span>Centros de votación<span class="n" id="nCentros">19</span></label>
+    <label class="capa"><input type="checkbox" data-capa="centros" checked><span class="sw sw-centro" style="width:18px;height:18px"></span>Centros de votación<span class="n" id="nCentros">19</span></label>
     <label class="capa"><input type="checkbox" data-capa="redes" checked><span class="sw" style="background:#00adef;border-radius:50%"></span>Redes<span class="n" id="nRedes">0</span></label>
     <label class="capa"><input type="checkbox" data-capa="actividades" checked><span class="sw" style="background:conic-gradient(#16a34a 0 33%,#db2777 0 66%,#7c3aed 0)"></span>Actividades<span class="n" id="nActs">0</span></label>
     <div class="ley" id="ley" style="margin:4px 0 0 27px"></div>
@@ -87,6 +87,7 @@ const { Style, Fill, Stroke, Circle: CircleStyle } = ol.style;
 const M = MAPAOL.crear({ target: "map", padding: () => innerWidth > 700 && innerHeight > 500 ? [30, 30, 30, 340] : [20, 20, 20, 20] });
 const { map, zonas, cantones, rotulos, centros, distrito } = M;
 const punto = M.punto;
+document.querySelectorAll(".sw-centro").forEach(e => e.style.background = `url("${MAPAOL.ICONO_CENTRO}") center/contain no-repeat`);
 
 /* ---------- Puntos ---------- */
 const redes = new ol.layer.Vector({ zIndex: 8, source: new ol.source.Vector(),

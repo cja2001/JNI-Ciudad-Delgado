@@ -614,7 +614,7 @@ function initMap(){
       <div class="mc-sec">Capas</div>
       <label><input type="checkbox" data-capa="zonas" checked><span class="sw" style="background:#7fd8f5;border:2px solid #0aa5d6"></span>Zonas</label>
       <label><input type="checkbox" data-capa="cantones"><span class="sw" style="border:2px dashed #c2410c"></span>Cantones y barrios</label>
-      <label><input type="checkbox" data-capa="centros" checked><span class="sw" style="background:#071f2e;border-radius:50%"></span>Centros de votación</label>
+      <label><input type="checkbox" data-capa="centros" checked><span class="sw" style="width:16px;height:16px;background:url(&quot;${MAPAOL.ICONO_CENTRO}&quot;) center/contain no-repeat"></span>Centros de votación</label>
       <label><input type="checkbox" data-capa="redes" checked><span class="sw" style="background:#00adef;border-radius:50%"></span>Redes</label>
       <div class="mc-sec">Ir a</div>
       <select id="mcZona" aria-label="Ir a una zona"><option value="">Todo el distrito</option>${ZONAS.map(z => `<option value="${z}">Zona ${z}</option>`).join("")}</select>
