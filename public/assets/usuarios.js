@@ -5,6 +5,11 @@
 
   async function mensajeDeFuncion(error) {
     try { const j = await error.context.json(); if (j && j.error) return j.error; } catch {}
+    // La función no está publicada en Supabase (o no hay conexión): el navegador ni siquiera llega a ella.
+    if (error.name === "FunctionsFetchError" || /failed to send a request/i.test(error.message || ""))
+      return "No se pudo conectar con la función \"admin-usuarios\". Revise que esté publicada en Supabase (Edge Functions) y que haya internet.";
+    if (error.name === "FunctionsRelayError" || /not found|404/i.test(error.message || ""))
+      return "La función \"admin-usuarios\" no está publicada en Supabase.";
     return error.message;
   }
   function supa(sb) {

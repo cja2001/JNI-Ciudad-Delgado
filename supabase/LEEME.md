@@ -61,8 +61,9 @@ Para editar, envíe también `id` con el id de la red. Si no envía `zona`, se t
 
 ## Usuarios y administradores
 1. Publique la función que crea cuentas. Con la CLI de Supabase, desde la carpeta `redes-cyan`:
-   `supabase functions deploy admin-usuarios --project-ref SU-PROYECTO`
-   (o en el panel: **Edge Functions > Deploy a new function**, nombre `admin-usuarios`, y pegue `functions/admin-usuarios/index.ts`).
+   `supabase functions deploy admin-usuarios --no-verify-jwt --project-ref SU-PROYECTO`
+   (o en el panel: **Edge Functions > Deploy a new function > Via Editor**, nombre exacto `admin-usuarios`, pegue `functions/admin-usuarios/index.ts` y en la configuración de la función apague **Verify JWT with legacy secret**; la función ya revisa la sesión por su cuenta).
+   Si al crear un usuario sale *"Failed to send a request to the Edge Function"* o *"No se pudo conectar con la función"*, es que este paso falta o el nombre no es exactamente `admin-usuarios`.
 2. En **Authentication > Sign In / Providers**, desactive **Allow new users to sign up**, para que nadie se registre por su cuenta.
 3. Cree su propia cuenta en **Authentication > Users > Add user** y conviértala en administrador en el SQL Editor:
    ```sql
